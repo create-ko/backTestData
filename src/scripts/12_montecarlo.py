@@ -23,7 +23,7 @@ SCHEMES = {
 def stop_units(w): return sum(w[i]*(5-MULT[i]) for i in range(6))
 def win_units(w,k): return sum(w[i]*(MULT[i]-MULT[k-1]+T) for i in range(k))
 
-rows = [r for r in csv.DictReader(open("sim_tp2_all_tf_2020-01-01_2026-06-16.csv", encoding="utf-8-sig"))
+rows = [r for r in csv.DictReader(open("sim_tp2_all_tf_2010-01-01_2026-06-16.csv", encoding="utf-8-sig"))
         if r["base종류"]=="KTR" and r["exitReason"] in ("TP","STOP")]
 
 def pnl_vector(w):

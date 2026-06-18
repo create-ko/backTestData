@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import csv
 from collections import defaultdict
-rows=[r for r in csv.DictReader(open("ktr_takeprofit_N_all_tf_2020-01-01_2026-06-16.csv",encoding="utf-8-sig"))
+rows=[r for r in csv.DictReader(open("ktr_takeprofit_N_all_tf_2010-01-01_2026-06-16.csv",encoding="utf-8-sig"))
       if r["base종류"]=="KTR" and r["손절여부"]=="No" and r["TF"]=="2m"]
 LAB=["바로출발","1번눌림","2번눌림","3번눌림","4번눌림","6차"]
 KP={"바로출발":"0","1번눌림":"-1","2번눌림":"-2","3번눌림":"-3","4번눌림":"-4","6차":"-4.5"}

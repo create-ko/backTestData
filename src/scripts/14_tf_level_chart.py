@@ -7,7 +7,7 @@ ktr_takeprofit_N -> 단계 × TF × 연도별 도달수익(KTR) 집계
 import csv, json, sys
 from collections import defaultdict
 
-SRC = sys.argv[1] if len(sys.argv) > 1 else "ktr_takeprofit_N_all_tf_2020-01-01_2026-06-16.csv"
+SRC = sys.argv[1] if len(sys.argv) > 1 else "ktr_takeprofit_N_all_tf_2010-01-01_2026-06-16.csv"
 OUT = sys.argv[2] if len(sys.argv) > 2 else "tf_level_chart.html"
 LAB_ORDER = ["바로출발","1번눌림","2번눌림","3번눌림","4번눌림","6차"]
 LAB_KTR = {"바로출발":"0","1번눌림":"-1","2번눌림":"-2","3번눌림":"-3","4번눌림":"-4","6차":"-4.5"}

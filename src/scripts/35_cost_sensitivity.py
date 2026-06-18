@@ -55,7 +55,7 @@ def trade(maxF,kind):
     return pnl/STOP_R, lots
 def v1_jobs(tf,bars,idx):
     out=[]
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -65,7 +65,7 @@ def v1_jobs(tf,bars,idx):
     out.sort(key=lambda x:x[0]); return out
 def v2_jobs(tf,bars,idx):
     u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -91,7 +91,7 @@ def maxdd_pct(eq):
 DATA={}
 print(f"# 확정설정 후방 {'·'.join(map(str,L))}/TP1.5/6차 - 비용(라운드턴$) 민감도\n")
 for tf in ["2m","5m","10m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv")
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
     JOBS={"v1":v1_jobs(tf,bars,idx),"v2":v2_jobs(tf,bars,idx)}
     DATA[tf]={}
     print(f"{'='*88}\n=== {tf} ===")

@@ -71,7 +71,7 @@ def mc(vec):
 
 def v2_jobs(tf,bars,idx):
     u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -91,7 +91,7 @@ def v2_jobs(tf,bars,idx):
 
 print(f"# TP={TP} / v2 / 6차반등탈출 X={B6X}\n")
 for tf in ["2m","5m","10m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv")
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
     jobs=v2_jobs(tf,bars,idx)
     # 연도별 outcome 수집
     by_year={y:[] for y in YEARS}; allout=[]

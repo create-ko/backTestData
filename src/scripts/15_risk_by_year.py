@@ -7,15 +7,16 @@ sim_tp2 기준. 회복폭 차트(tf_level_chart)의 짝 = 수익성/위험 면.
 import csv, json
 from collections import defaultdict
 
-SRC="sim_tp2_all_tf_2020-01-01_2026-06-16.csv"
+SRC="sim_tp2_all_tf_2010-01-01_2026-06-16.csv"
 OUT="risk_by_year.html"
 MULT=[0,1,2,3,4,4.5]
 def win_pnl(k): return sum(MULT[i]-MULT[k-1]+2.0 for i in range(k))
 STOP=sum(MULT[i]-5 for i in range(6))   # -15.5
-TFS=["전체","2m","5m","10m"]; YEARS=["2020","2021","2022","2023","2024","2025","2026"]
+TFS=["전체","2m","5m","10m"]
 
 rows=[r for r in csv.DictReader(open(SRC,encoding="utf-8-sig"))
       if r["base종류"]=="KTR" and r["exitReason"] in ("TP","STOP")]
+YEARS=sorted({r["datetime_kst"][:4] for r in rows})   # 데이터 기간에서 자동 도출
 
 def stats(sub):
     n=len(sub)

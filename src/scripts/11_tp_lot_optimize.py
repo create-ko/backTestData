@@ -54,10 +54,10 @@ def sim_one(bars, si, direction, bp, base, T):
 # 신호+봉 로드 (KTR만)
 bars_by={}; idx_by={}
 for tf in ["2m","5m","10m"]:
-    bars_by[tf], idx_by[tf] = load_bars(f"xauusd_{tf}_2020-01-01_2026-06-16.csv")
+    bars_by[tf], idx_by[tf] = load_bars(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
 sigs=[]
 for tf in ["2m","5m","10m"]:
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             si=idx_by[tf].get(int(s[2]))

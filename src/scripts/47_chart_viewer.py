@@ -25,7 +25,7 @@ def resample(b10,period):
     if cur: out.append(tuple(cur))
     return out
 def calib(tf):
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd); s=next(rd)
     ts=int(s[2]); ts=ts//1000 if ts>1e11 else ts
     return (int(s[1][11:13])-(ts//3600)%24)%24
@@ -80,9 +80,9 @@ def r1(v): return round(v,1) if v is not None else None
 
 print("차트용 분봉 로딩...")
 disp={}
-disp["2m"],_=load("xauusd_2m_2020-01-01_2026-06-16.csv")
-disp["5m"],_=load("xauusd_5m_2020-01-01_2026-06-16.csv")
-disp["10m"],i10=load("xauusd_10m_2020-01-01_2026-06-16.csv")
+disp["2m"],_=load("xauusd_2m_2010-01-01_2026-06-16.csv")
+disp["5m"],_=load("xauusd_5m_2010-01-01_2026-06-16.csv")
+disp["10m"],i10=load("xauusd_10m_2010-01-01_2026-06-16.csv")
 disp["1h"]=resample(disp["10m"],3600)
 disp["2h"]=resample(disp["10m"],7200)
 off=calib("10m")
@@ -113,7 +113,7 @@ def window(ctf,ep):
 STRATS={}
 for stf in ["2m","5m","10m"]:
     print(f"전략 {stf} 실패 추출...")
-    sbars,sidx=load(f"xauusd_{stf}_2020-01-01_2026-06-16.csv") if stf not in ("2m","5m","10m") else (disp[stf], (i10 if stf=="10m" else None))
+    sbars,sidx=load(f"xauusd_{stf}_2010-01-01_2026-06-16.csv") if stf not in ("2m","5m","10m") else (disp[stf], (i10 if stf=="10m" else None))
     # idx 필요: 2m/5m는 별도 idx 생성
     if stf=="10m": sidx=i10
     else:
@@ -122,7 +122,7 @@ for stf in ["2m","5m","10m"]:
     sbars=disp[stf]
     soff=calib(stf)
     sigs=[]
-    with open(f"signals_{stf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{stf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=sidx.get(int(s[2]))

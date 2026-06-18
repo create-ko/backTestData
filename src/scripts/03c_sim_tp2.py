@@ -3,7 +3,7 @@
 """
 03c_sim_tp2.py — sim(03b)과 동일하되 익절 = 깊은체결 + TPMULT*base (기본 2.0)
 입력 : xauusd_{tf}_2020-..csv , signals_{tf}_2020-..csv
-출력 : sim_tp2_{tf}_2020-01-01_2026-06-16.csv , sim_tp2_all_tf_...csv
+출력 : sim_tp2_{tf}_2010-01-01_2026-06-16.csv , sim_tp2_all_tf_...csv
 끝에 손절률·체결분포·익절손익구조(등량 랏) 요약 출력.
 """
 import csv
@@ -51,13 +51,13 @@ def sim_one(bars, start_i, direction, bp, base):
     return maxFilled, maxR, "OPEN", n-1-start_i
 
 def bucket(r): return "<1R" if r < 1.0 else "1~2R" if r < 2.0 else "2~3R" if r < 3.0 else "3R+"
-BARFILES = {tf: f"xauusd_{tf}_2020-01-01_2026-06-16.csv" for tf in ["2m","5m","10m"]}
+BARFILES = {tf: f"xauusd_{tf}_2010-01-01_2026-06-16.csv" for tf in ["2m","5m","10m"]}
 HEADER = ["signal_id","datetime_kst","TF","방향","세션","꼬리비율","fresh","base종류","base값",
           "돌파가","maxFilledCount","maxReachedR","exitReason","stopHit","결과버킷","bars_held"]
 combined = []
 for tf in ["2m","5m","10m"]:
     bars, idx = load_bars(BARFILES[tf])
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
         rd = csv.reader(fp); next(rd); sigs = list(rd)
     out = []
     for s in sigs:
@@ -70,10 +70,10 @@ for tf in ["2m","5m","10m"]:
             sh = "TRUE" if (mf >= 6 and ex == "STOP") else "FALSE"
             out.append([s[0], s[1], tf, direction, s[5], s[6], s[10], bk, round(bval,4),
                         bp, mf, round(mr,3), ex, sh, bucket(mr), bh])
-    with open(f"sim_tp2_{tf}_2020-01-01_2026-06-16.csv","w",newline="",encoding="utf-8-sig") as fp:
+    with open(f"sim_tp2_{tf}_2010-01-01_2026-06-16.csv","w",newline="",encoding="utf-8-sig") as fp:
         w = csv.writer(fp); w.writerow(HEADER); w.writerows(out)
     combined += out
-with open("sim_tp2_all_tf_2020-01-01_2026-06-16.csv","w",newline="",encoding="utf-8-sig") as fp:
+with open("sim_tp2_all_tf_2010-01-01_2026-06-16.csv","w",newline="",encoding="utf-8-sig") as fp:
     w = csv.writer(fp); w.writerow(HEADER); w.writerows(combined)
 print(f"[생성] sim_tp2_all_tf (TP={TPMULT}배수) {len(combined)}행")
 

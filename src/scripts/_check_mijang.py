@@ -6,7 +6,7 @@ def pine_dow(d): return (d.isoweekday() % 7) + 1
 def is_us_dst(dt):
     m, d = dt.month, dt.day; wd = pine_dow(dt.date())
     return (3 < m < 11) or (m == 3 and (d - wd >= 7)) or (m == 11 and (d - wd < 0))
-rows = list(csv.DictReader(open("signals_all_tf_2020-01-01_2026-06-16.csv", encoding="utf-8-sig")))
+rows = list(csv.DictReader(open("signals_all_tf_2010-01-01_2026-06-16.csv", encoding="utf-8-sig")))
 early = 0; total = 0
 for r in rows:
     dt = datetime.datetime.fromtimestamp(int(r["time_epoch"]), KST)

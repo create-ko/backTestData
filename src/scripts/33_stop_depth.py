@@ -70,7 +70,7 @@ def mc(vec):
 
 def v2_jobs(tf,bars,idx):
     u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -87,7 +87,7 @@ def v2_jobs(tf,bars,idx):
     return out
 
 for tf in ["2m","5m","10m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv")
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
     jobs=v2_jobs(tf,bars,idx)
     print(f"\n{'='*82}\n=== {tf} v2 ({len(jobs)}건) / 후방 사다리 cap별 / TP=1.5 ===")
     print(f"{'cap':>4}{'사다리':>14}{'cap도달%':>9}{'풀스톱%':>8}{'손실거래%':>9}{'기대값R':>9}{'중앙MDD':>9}{'파산%':>7}")

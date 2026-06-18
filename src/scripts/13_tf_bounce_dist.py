@@ -3,7 +3,7 @@
 import csv
 from collections import defaultdict
 
-SRC = "ktr_takeprofit_N_all_tf_2020-01-01_2026-06-16.csv"
+SRC = "ktr_takeprofit_N_all_tf_2010-01-01_2026-06-16.csv"
 COL = "최대도달R_트레일1base"
 LEVELS = ["바로출발", "1번눌림", "2번눌림"]   # 표본 충분한 단계만
 LAB_KTR = {"바로출발":"0차(0ktr)","1번눌림":"1차(-1ktr)","2번눌림":"2차(-2ktr)"}

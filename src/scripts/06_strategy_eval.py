@@ -3,7 +3,7 @@
 """
 06_strategy_eval.py  — 전략 고도화 분석 (KTR base, sim 기준)
 ============================================================
-입력: sim_all_tf_2020-01-01_2026-06-16.csv
+입력: sim_all_tf_2010-01-01_2026-06-16.csv
 
 전제(원본 Pine과 동일):
   - 등량 랏 (각 1랏, pyramiding 6)
@@ -34,7 +34,7 @@ def pnl_R(row):
     if ex == "STOP": return STOP_PNL_R
     return None                            # OPEN 제외
 
-rows = [r for r in csv.DictReader(open("sim_all_tf_2020-01-01_2026-06-16.csv", encoding="utf-8-sig"))
+rows = [r for r in csv.DictReader(open("sim_all_tf_2010-01-01_2026-06-16.csv", encoding="utf-8-sig"))
         if r["base종류"] == "KTR" and (TF is None or r["TF"] == TF)]
 for r in rows:
     r["_pnl"] = pnl_R(r)

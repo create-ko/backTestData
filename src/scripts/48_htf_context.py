@@ -30,7 +30,7 @@ def sma(bars,n,si):
         if i>=n-1: out[i]=s/n
     return out
 def calib(tf):
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd); s=next(rd)
     ts=int(s[2]); ts=ts//1000 if ts>1e11 else ts
     return (int(s[1][11:13])-(ts//3600)%24)%24
@@ -63,12 +63,12 @@ def sim(bars, eb, a, d, base):
             if l<=tp: return i,"WIN"
     return n-1,"OPEN"
 
-b10,i10=load("xauusd_10m_2020-01-01_2026-06-16.csv")
+b10,i10=load("xauusd_10m_2010-01-01_2026-06-16.csv")
 b1h=resample(b10,3600); b2h=resample(b10,7200)
 sma1h=sma(b1h,20,4); sma2h=sma(b2h,20,4)
 off=calib("10m")
 sigs=[]
-with open("signals_10m_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+with open("signals_10m_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
     rd=csv.reader(fp); next(rd)
     for s in rd:
         bi=i10.get(int(s[2]))

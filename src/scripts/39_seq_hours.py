@@ -20,7 +20,7 @@ def load(f):
     return bars,idx
 def calib_offset(tf,bars,idx):
     """첫 신호의 datetime_kst와 timestamp로 KST 시 offset 계산."""
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd); s=next(rd)
     ts=int(s[2]); ts=ts//1000 if ts>1e11 else ts
     sig_h=int(s[1][11:13])
@@ -68,7 +68,7 @@ def trade_R(maxF,kind):
 
 def seq_v1(tf,bars,idx,off):
     sigs=[]
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -87,7 +87,7 @@ def seq_v1(tf,bars,idx,off):
     return out
 def seq_v2(tf,bars,idx,off):
     u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -127,7 +127,7 @@ def maxdd(eq):
 DATA={}
 print(f"# 순차+시간필터(KST {START_H}:00~24:00 진입) / 후방/TP1.5/6차 / 리스크2% / 비용${SPREAD}\n")
 for tf in ["2m","5m","10m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv")
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
     off=calib_offset(tf,bars,idx)
     DATA[tf]={}
     JOBS={"v1":seq_v1(tf,bars,idx,off),"v2":seq_v2(tf,bars,idx,off)}

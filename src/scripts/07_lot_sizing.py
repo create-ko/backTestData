@@ -39,7 +39,7 @@ def pnl_R(w, su, row):
     if ex == "TP":   return win_units(w, int(row["maxFilledCount"]))/su
     return None
 
-rows = [r for r in csv.DictReader(open("sim_all_tf_2020-01-01_2026-06-16.csv", encoding="utf-8-sig"))
+rows = [r for r in csv.DictReader(open("sim_all_tf_2010-01-01_2026-06-16.csv", encoding="utf-8-sig"))
         if r["base종류"] == "KTR" and (TF is None or r["TF"] == TF)]
 clo = [r for r in rows if r["exitReason"] in ("TP", "STOP")]
 dist = Counter(int(r["maxFilledCount"]) for r in clo)
