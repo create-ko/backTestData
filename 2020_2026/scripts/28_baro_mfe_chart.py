@@ -22,7 +22,7 @@ def load_mfe(path):
             data[tf].append(val)
     return data
 
-base_dir = "D:/claude/2020_2026"
+base_dir = "."  # 2020_2026 디렉토리에서 실행 (다른 스크립트와 동일 규칙)
 v1_path = os.path.join(base_dir, "ktr_takeprofit_N_all_tf_2020-01-01_2026-06-16.csv")
 v2_path = os.path.join(base_dir, "ktr_takeprofit_N_v2_all_tf_2020-01-01_2026-06-16.csv")
 
