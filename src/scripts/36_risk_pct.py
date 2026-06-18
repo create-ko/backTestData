@@ -55,7 +55,7 @@ def trade(maxF,kind):
     return pnl/STOP_R, lots
 def v1_jobs(tf,bars,idx):
     out=[]
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -65,7 +65,7 @@ def v1_jobs(tf,bars,idx):
     out.sort(key=lambda x:x[0]); return out
 def v2_jobs(tf,bars,idx):
     u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -106,7 +106,7 @@ def boot(netRs, f, ln):
     return 100*mdds[len(mdds)//2], 100*mdds[int(len(mdds)*0.95)], 100*ruin/M_RUNS, 100*under/M_RUNS
 
 for tf in ["10m","5m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv")
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
     JOBS={"v1":v1_jobs(tf,bars,idx),"v2":v2_jobs(tf,bars,idx)}
     print(f"\n{'='*90}\n=== {tf} (net 비용 ${SPREAD}) ===")
     for ver in ["v1","v2"]:

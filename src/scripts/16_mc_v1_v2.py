@@ -18,8 +18,8 @@ def load_outcomes(f, isv2):
         rows.append((int(r["maxFilledCount"]), ex))
     return rows
 
-V1=load_outcomes("sim_tp2_all_tf_2020-01-01_2026-06-16.csv",False)
-V2=load_outcomes("sim_v2_tp2_all_tf_2020-01-01_2026-06-16.csv",True)
+V1=load_outcomes("sim_tp2_all_tf_2010-01-01_2026-06-16.csv",False)
+V2=load_outcomes("sim_v2_tp2_all_tf_2010-01-01_2026-06-16.csv",True)
 
 def pnl_vec(rows,w):
     su=stop_units(w)

@@ -15,7 +15,7 @@ def load(f):
             t=int(float(r[0])); idx[t]=len(bars); bars.append((t,float(r[1]),float(r[2]),float(r[3]),float(r[4])))
     return bars,idx
 def calib(tf):
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd); s=next(rd)
     ts=int(s[2]); ts=ts//1000 if ts>1e11 else ts
     return (int(s[1][11:13])-(ts//3600)%24)%24
@@ -62,7 +62,7 @@ def trade_R(maxF,kind):
     return pnl_tps(maxF)/STOP_R, sum(L[:maxF])
 def seq_v1(tf,bars,idx,off,wthr):
     sigs=[]
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -81,7 +81,7 @@ def seq_v1(tf,bars,idx,off,wthr):
     return out
 def seq_v2(tf,bars,idx,off,wthr):
     u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -111,7 +111,7 @@ def maxdd(eq):
     return 100*m
 
 for tf in ["10m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv"); off=calib(tf)
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv"); off=calib(tf)
     # 시장일(데이터에 바가 있는 KST 날짜) 정렬 리스트
     mdays=sorted(set(kdate(b[0],off) for b in bars))
     nday=len(mdays); dpos={d:i for i,d in enumerate(mdays)}

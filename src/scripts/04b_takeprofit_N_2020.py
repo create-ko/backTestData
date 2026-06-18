@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 04b_takeprofit_N_2020.py  (= 04_takeprofit_N.py 로직 + 신규셋 + 편의컬럼)
-입력 : xauusd_{tf}_2020-01-01_2026-06-16.csv , signals_{tf}_2020-01-01_2026-06-16.csv
-출력 : ktr_takeprofit_N_all_tf_2020-01-01_2026-06-16.csv
+입력 : xauusd_{tf}_2010-01-01_2026-06-16.csv , signals_{tf}_2010-01-01_2026-06-16.csv
+출력 : ktr_takeprofit_N_all_tf_2010-01-01_2026-06-16.csv
 
 추가 컬럼:
   엔트리기준_도달ktr = 최대도달R - depth(체결단계)
@@ -74,11 +74,11 @@ HEADER = ["signal_id", "datetime_kst", "TF", "방향", "세션", "꼬리비율",
           "base종류", "base값", "체결단계", "단계라벨", "익절가능N",
           "최대도달R_본전복귀", "최대도달R_트레일1base", "엔트리기준_도달ktr", "손절여부", "도달봉수"]
 out = []
-for tf, bf in [("2m",  "xauusd_2m_2020-01-01_2026-06-16.csv"),
-               ("5m",  "xauusd_5m_2020-01-01_2026-06-16.csv"),
-               ("10m", "xauusd_10m_2020-01-01_2026-06-16.csv")]:
+for tf, bf in [("2m",  "xauusd_2m_2010-01-01_2026-06-16.csv"),
+               ("5m",  "xauusd_5m_2010-01-01_2026-06-16.csv"),
+               ("10m", "xauusd_10m_2010-01-01_2026-06-16.csv")]:
     bars, idx = load(bf); n = len(bars)
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
         rd = csv.reader(fp); next(rd)
         for s in rd:
             if s[10] != "TRUE": continue                  # fresh only
@@ -92,7 +92,7 @@ for tf, bf in [("2m",  "xauusd_2m_2020-01-01_2026-06-16.csv"),
                 out.append([s[0], s[1], tf, s[4], s[5], s[6], round(e1, 4), bk, round(bval, 4),
                             fc, LAB[fc], math.floor(peak), round(peak, 3), round(peakB, 3), entry_rel,
                             "Yes" if stopped else "No", pb])
-with open("ktr_takeprofit_N_all_tf_2020-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
+with open("ktr_takeprofit_N_all_tf_2010-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
     w = csv.writer(fp); w.writerow(HEADER); w.writerows(out)
 k = sum(1 for r in out if r[7] == "KTR")
-print(f"총 {len(out)}행 (KTR {k} / BREAKOUT {len(out)-k}) -> ktr_takeprofit_N_all_tf_2020-01-01_2026-06-16.csv")
+print(f"총 {len(out)}행 (KTR {k} / BREAKOUT {len(out)-k}) -> ktr_takeprofit_N_all_tf_2010-01-01_2026-06-16.csv")

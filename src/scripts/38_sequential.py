@@ -58,7 +58,7 @@ def trade_R(maxF,kind):
 # 순차 진입 리스트 (busy gate)
 def seq_v1(tf,bars,idx):
     sigs=[]
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -74,7 +74,7 @@ def seq_v1(tf,bars,idx):
     return out
 def seq_v2(tf,bars,idx):
     u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -104,7 +104,7 @@ def maxdd(eq):
 DATA={}
 print(f"# 순차(non-overlapping) / 후방 {'·'.join(map(str,L))} / TP1.5 / 6차 / 리스크2% / 비용${SPREAD}\n")
 for tf in ["2m","5m","10m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv")
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
     DATA[tf]={}
     JOBS={"v1":seq_v1(tf,bars,idx),"v2":seq_v2(tf,bars,idx)}
     for ver in ["v1","v2"]:

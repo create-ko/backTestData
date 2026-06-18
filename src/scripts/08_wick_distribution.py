@@ -5,7 +5,7 @@ from collections import defaultdict
 
 BINS = [(0.00,0.05),(0.05,0.10),(0.10,0.15),(0.15,0.20),
         (0.20,0.30),(0.30,0.50),(0.50,1.0001)]
-rows = list(csv.DictReader(open("signals_all_tf_2020-01-01_2026-06-16.csv", encoding="utf-8-sig")))
+rows = list(csv.DictReader(open("signals_all_tf_2010-01-01_2026-06-16.csv", encoding="utf-8-sig")))
 
 byTF = defaultdict(list)
 for r in rows:

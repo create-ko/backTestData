@@ -6,8 +6,8 @@
 02_signals.py 와 로직 동일. 입력/출력만 신규 2020~2026 데이터셋으로 교체한 버전.
 (원본 02_signals.py 및 기존 signals_*.csv 는 그대로 보존)
 
-입력 : xauusd_{2m|5m|10m}_2020-01-01_2026-06-16.csv   (Dukascopy MID, 1m도 동봉)
-출력 : signals_{2m|5m|10m}_2020-01-01_2026-06-16.csv , signals_all_tf_2020-01-01_2026-06-16.csv
+입력 : xauusd_{2m|5m|10m}_2010-01-01_2026-06-16.csv   (Dukascopy MID, 1m도 동봉)
+출력 : signals_{2m|5m|10m}_2010-01-01_2026-06-16.csv , signals_all_tf_2010-01-01_2026-06-16.csv
 """
 import csv, math, datetime
 from datetime import timezone, timedelta
@@ -91,17 +91,17 @@ HEADER = ["signal_id", "datetime_kst", "time_epoch", "TF", "방향", "세션", "
           "돌파가", "KTR", "돌파캔들크기", "fresh", "open", "high", "low", "close"]
 
 combined = []
-for tf, f, mult in [("2m",  "xauusd_2m_2020-01-01_2026-06-16.csv",  2),
-                    ("5m",  "xauusd_5m_2020-01-01_2026-06-16.csv",  5),
-                    ("10m", "xauusd_10m_2020-01-01_2026-06-16.csv", 10)]:
+for tf, f, mult in [("2m",  "xauusd_2m_2010-01-01_2026-06-16.csv",  2),
+                    ("5m",  "xauusd_5m_2010-01-01_2026-06-16.csv",  5),
+                    ("10m", "xauusd_10m_2010-01-01_2026-06-16.csv", 10)]:
     out = process(tf, f, mult)
     kept = [r for r in out if r[8] != ""]
     for i, r in enumerate(kept, 1):
         r[0] = f"{tf}-{i:06d}"
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
         w = csv.writer(fp); w.writerow(HEADER); w.writerows(kept)
     combined += kept
     print(f"[{tf}] 돌파봉 {len(out)} -> KTR유효 {len(kept)} (제외 {len(out)-len(kept)})")
-with open("signals_all_tf_2020-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
+with open("signals_all_tf_2010-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
     w = csv.writer(fp); w.writerow(HEADER); w.writerows(combined)
-print(f"[all] {len(combined)}건 -> signals_all_tf_2020-01-01_2026-06-16.csv")
+print(f"[all] {len(combined)}건 -> signals_all_tf_2010-01-01_2026-06-16.csv")

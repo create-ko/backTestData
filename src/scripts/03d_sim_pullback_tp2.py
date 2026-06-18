@@ -4,7 +4,7 @@
 03d_sim_pullback_tp2.py — 풀백 진입(v2) + TP 2배수 sim. v1(즉시진입)과 비교.
 진입: 04c와 동일(돌파 후 BB2 반대편 첫 터치 다음 시가, 다음 돌파 시 기준 교체).
 그리드: 새 진입가 앵커, base=원 돌파 KTR/BREAKOUT, TP=깊은체결+2*base, 손절 6차 -5*base.
-출력: sim_v2_tp2_all_tf_2020-01-01_2026-06-16.csv + v1/v2 비교 콘솔.
+출력: sim_v2_tp2_all_tf_2010-01-01_2026-06-16.csv + v1/v2 비교 콘솔.
 """
 import csv, math
 from collections import defaultdict
@@ -55,10 +55,10 @@ def sim(bars, eb, direction, base):
 
 rows_out=[]
 for tf in ["2m","5m","10m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv"); n=len(bars)
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv"); n=len(bars)
     u2,l2=boll([b[1] for b in bars],4,4.0)
     brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -77,7 +77,7 @@ for tf in ["2m","5m","10m"]:
                         mf,ex=sim(bars,eb,pdir,bval)
                         rows_out.append([tf,str(yr),pdir,bk,mf,ex])
                     pending=None
-with open("sim_v2_tp2_all_tf_2020-01-01_2026-06-16.csv","w",newline="",encoding="utf-8-sig") as fp:
+with open("sim_v2_tp2_all_tf_2010-01-01_2026-06-16.csv","w",newline="",encoding="utf-8-sig") as fp:
     w=csv.writer(fp); w.writerow(["TF","연도","방향","base종류","maxFilledCount","exitReason"]); w.writerows(rows_out)
 
 def summ(rows):
@@ -92,7 +92,7 @@ def summ(rows):
 v2=[r for r in rows_out if r[3]=="KTR"]
 # v1 (sim_tp2, KTR)
 v1=[]
-for r in csv.DictReader(open("sim_tp2_all_tf_2020-01-01_2026-06-16.csv",encoding="utf-8-sig")):
+for r in csv.DictReader(open("sim_tp2_all_tf_2010-01-01_2026-06-16.csv",encoding="utf-8-sig")):
     if r["base종류"]=="KTR": v1.append([r["TF"],r["datetime_kst"][:4],r["방향"],"KTR",int(r["maxFilledCount"]),r["exitReason"]])
 
 print("== 전체 (KTR, TP 2배수) ==")

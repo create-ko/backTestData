@@ -7,7 +7,7 @@ MULT=[0,1,2,3,4,4.5]
 def win_pnl(k): return sum(MULT[i]-MULT[k-1]+2.0 for i in range(k))  # 등량, TP2
 STOP=sum(MULT[i]-5 for i in range(6))
 
-rows=[r for r in csv.DictReader(open("sim_tp2_all_tf_2020-01-01_2026-06-16.csv",encoding="utf-8-sig"))
+rows=[r for r in csv.DictReader(open("sim_tp2_all_tf_2010-01-01_2026-06-16.csv",encoding="utf-8-sig"))
       if r["base종류"]=="KTR" and r["exitReason"] in ("TP","STOP")]
 by=defaultdict(list)
 for r in rows: by[r["datetime_kst"][:4]].append(r)
@@ -23,7 +23,7 @@ for yr in sorted(by):
     print(f"{yr:<6}{n:>7}{100*stop/n:>7.2f}%{100*six/n:>6.1f}%{win:>6.1f}%{exp:>+14.3f}R")
 
 # 0차 도달 분포 연도별 (평균 vs 중앙 vs 95퍼센타일 vs 최대) — 트레일
-tp=[r for r in csv.DictReader(open("ktr_takeprofit_N_all_tf_2020-01-01_2026-06-16.csv",encoding="utf-8-sig"))
+tp=[r for r in csv.DictReader(open("ktr_takeprofit_N_all_tf_2010-01-01_2026-06-16.csv",encoding="utf-8-sig"))
     if r["base종류"]=="KTR" and r["손절여부"]=="No" and r["단계라벨"]=="바로출발"]
 byy=defaultdict(list)
 for r in tp: byy[r["datetime_kst"][:4]].append(float(r["최대도달R_트레일1base"]))

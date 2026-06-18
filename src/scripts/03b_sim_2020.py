@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 03b_sim_2020.py  (= 03_sim.py 로직 동일, 입출력만 2020~2026 신규셋)
-입력 : xauusd_{2m|5m|10m}_2020-01-01_2026-06-16.csv , signals_{tf}_2020-01-01_2026-06-16.csv
-출력 : sim_{tf}_2020-01-01_2026-06-16.csv , sim_all_tf_2020-01-01_2026-06-16.csv
+입력 : xauusd_{2m|5m|10m}_2010-01-01_2026-06-16.csv , signals_{tf}_2010-01-01_2026-06-16.csv
+출력 : sim_{tf}_2010-01-01_2026-06-16.csv , sim_all_tf_2010-01-01_2026-06-16.csv
 손절률 분석용: maxFilledCount/maxReachedR(+1ktr 익절 캡)/exitReason/stopHit/결과버킷/bars_held
 """
 import csv
@@ -50,9 +50,9 @@ def sim_one(bars, start_i, direction, bp, base):
 def bucket(r):
     return "<1R" if r < 1.0 else "1~2R" if r < 2.0 else "2~3R" if r < 3.0 else "3R+"
 
-BARFILES = {"2m": "xauusd_2m_2020-01-01_2026-06-16.csv",
-            "5m": "xauusd_5m_2020-01-01_2026-06-16.csv",
-            "10m": "xauusd_10m_2020-01-01_2026-06-16.csv"}
+BARFILES = {"2m": "xauusd_2m_2010-01-01_2026-06-16.csv",
+            "5m": "xauusd_5m_2010-01-01_2026-06-16.csv",
+            "10m": "xauusd_10m_2010-01-01_2026-06-16.csv"}
 HEADER = ["signal_id", "datetime_kst", "TF", "방향", "세션", "꼬리비율", "fresh",
           "base종류", "base값", "돌파가", "maxFilledCount", "maxReachedR",
           "exitReason", "stopHit", "결과버킷", "bars_held"]
@@ -60,7 +60,7 @@ HEADER = ["signal_id", "datetime_kst", "TF", "방향", "세션", "꼬리비율",
 combined = []
 for tf in ["2m", "5m", "10m"]:
     bars, idx = load_bars(BARFILES[tf])
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
         rd = csv.reader(fp); next(rd); sigs = list(rd)
     out = []
     for s in sigs:
@@ -74,10 +74,10 @@ for tf in ["2m", "5m", "10m"]:
             sh = "TRUE" if (mf >= 6 and mr < 1.0) else "FALSE"
             out.append([sid, dttxt, tf, direction, sess, wick, fresh, bk, round(bval, 4),
                         bp, mf, round(mr, 3), ex, sh, bucket(mr), bh])
-    with open(f"sim_{tf}_2020-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
+    with open(f"sim_{tf}_2010-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
         w = csv.writer(fp); w.writerow(HEADER); w.writerows(out)
     combined += out
     print(f"[{tf}] {len(out)}행")
-with open("sim_all_tf_2020-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
+with open("sim_all_tf_2010-01-01_2026-06-16.csv", "w", newline="", encoding="utf-8-sig") as fp:
     w = csv.writer(fp); w.writerow(HEADER); w.writerows(combined)
-print(f"[all] {len(combined)}행 -> sim_all_tf_2020-01-01_2026-06-16.csv")
+print(f"[all] {len(combined)}행 -> sim_all_tf_2010-01-01_2026-06-16.csv")

@@ -18,7 +18,7 @@ def is_euro_dst(dt):
     lsM = 31 - (pine_dow(datetime.date(y, 3, 31)) - 1); lsO = 31 - (pine_dow(datetime.date(y, 10, 31)) - 1)
     return (3 < m < 10) or (m == 3 and d >= lsM) or (m == 10 and d < lsO)
 
-rows = list(csv.DictReader(open("signals_all_tf_2020-01-01_2026-06-16.csv", encoding="utf-8-sig")))
+rows = list(csv.DictReader(open("signals_all_tf_2010-01-01_2026-06-16.csv", encoding="utf-8-sig")))
 
 # 세션별 × DST상태별 KST 시작시각(min hour) 관측
 # 아시아/미장은 US-DST, 유로는 EU-DST 기준으로 분리

@@ -16,8 +16,8 @@ def load(f, v2):
         rows.append((r["TF"], int(r["maxFilledCount"]), ex))
     return rows
 
-V={"v1 즉시":load("sim_tp2_all_tf_2020-01-01_2026-06-16.csv",False),
-   "v2 풀백":load("sim_v2_tp2_all_tf_2020-01-01_2026-06-16.csv",True)}
+V={"v1 즉시":load("sim_tp2_all_tf_2010-01-01_2026-06-16.csv",False),
+   "v2 풀백":load("sim_v2_tp2_all_tf_2010-01-01_2026-06-16.csv",True)}
 
 def mc(vec):
     mdds=[]; finals=[]

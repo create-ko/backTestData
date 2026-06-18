@@ -83,7 +83,7 @@ def mc(vec):
 
 def v1_jobs(tf,bars,idx):
     out=[]
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -93,7 +93,7 @@ def v1_jobs(tf,bars,idx):
     return out
 def v2_jobs(tf,bars,idx):
     u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -115,7 +115,7 @@ def outcome_pnl(L, k, kind):
     return pnl_tps(L,k)  # TPs
 
 for tf in ["2m","5m","10m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv")
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
     JOBS={"v1":v1_jobs(tf,bars,idx),"v2":v2_jobs(tf,bars,idx)}
     print(f"\n{'='*78}\n=== {tf}  (v1 {len(JOBS['v1'])}건 / v2 {len(JOBS['v2'])}건) ===")
     for ver in ["v1","v2"]:

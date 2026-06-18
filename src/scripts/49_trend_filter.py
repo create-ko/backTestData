@@ -33,7 +33,7 @@ def sma(bars,n,si):
         if i>=n-1: out[i]=s/n
     return out
 def calib(tf):
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd); s=next(rd)
     ts=int(s[2]); ts=ts//1000 if ts>1e11 else ts
     return (int(s[1][11:13])-(ts//3600)%24)%24
@@ -91,7 +91,7 @@ def maxdd(eq):
     return 100*m
 
 # 2h 추세 (10m 리샘플 기준, 모든 분봉 공통으로 같은 2h 추세 사용)
-b10base,_=load("xauusd_10m_2020-01-01_2026-06-16.csv")
+b10base,_=load("xauusd_10m_2010-01-01_2026-06-16.csv")
 b2h=resample(b10base,7200); sma2h=sma(b2h,20,4)
 def trend_up(ep):
     # 룩어헤드 방지: 진입 ep 시점에 '완전히 마감된' 마지막 2h 봉만 사용
@@ -103,7 +103,7 @@ def trend_up(ep):
 def run(stf,bars,idx,off,ver,mode):
     if ver=="v1":
         sigs=[]
-        with open(f"signals_{stf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+        with open(f"signals_{stf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
             rd=csv.reader(fp); next(rd)
             for s in rd:
                 bi=idx.get(int(s[2]))
@@ -113,7 +113,7 @@ def run(stf,bars,idx,off,ver,mode):
         sigs.sort(key=lambda x:x[0]); jobs=[("v1",bi,a,d,k) for bi,a,d,k in sigs]
     else:
         u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
-        with open(f"signals_{stf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+        with open(f"signals_{stf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
             rd=csv.reader(fp); next(rd)
             for s in rd:
                 bi=idx.get(int(s[2]))
@@ -158,7 +158,7 @@ def run(stf,bars,idx,off,ver,mode):
     return n,round(sum(netR),1),round(cagr,1),round(maxdd(eq),1)
 
 for stf in ["2m","5m","10m"]:
-    bars,idx=load(f"xauusd_{stf}_2020-01-01_2026-06-16.csv"); off=calib(stf)
+    bars,idx=load(f"xauusd_{stf}_2010-01-01_2026-06-16.csv"); off=calib(stf)
     print(f"\n{'='*78}\n### {stf} (전체기간) ###")
     print(f"{'버전':>4}{'필터':>8}{'거래수':>8}{'net R':>9}{'CAGR':>8}{'MDD':>8}")
     for ver in ["v1","v2"]:

@@ -3,7 +3,7 @@
 import csv
 from collections import defaultdict
 
-SRC = "ktr_takeprofit_N_all_tf_2020-01-01_2026-06-16.csv"
+SRC = "ktr_takeprofit_N_all_tf_2010-01-01_2026-06-16.csv"
 LAB_ORDER = ["바로출발","1번눌림","2번눌림","3번눌림","4번눌림","6차"]
 rows = list(csv.DictReader(open(SRC, encoding="utf-8-sig")))
 

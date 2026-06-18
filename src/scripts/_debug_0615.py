@@ -5,7 +5,7 @@ from datetime import timezone, timedelta
 KST = timezone(timedelta(hours=9))
 
 data = []
-with open("xauusd_10m_2020-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
+with open("xauusd_10m_2010-01-01_2026-06-16.csv", encoding="utf-8-sig") as fp:
     rd = csv.reader(fp); next(rd)
     for r in rd:
         data.append((float(r[0]), float(r[1]), float(r[2]), float(r[3]), float(r[4])))

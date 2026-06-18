@@ -7,7 +7,7 @@
   SHORT 돌파 → 고가 > BB2상단 첫 터치 → 다음 시가 숏
   대기 중 새 돌파 발생 시 그 돌파를 새 기준으로 교체(방향도 갱신).
 그리드: 새 진입가 앵커, base=원 돌파의 KTR/돌파캔들크기. 나머지(MFE 측정)는 04b와 동일.
-출력: ktr_takeprofit_N_v2_all_tf_2020-01-01_2026-06-16.csv  (04b와 동일 스키마)
+출력: ktr_takeprofit_N_v2_all_tf_2010-01-01_2026-06-16.csv  (04b와 동일 스키마)
 """
 import csv, math, datetime
 from datetime import timezone, timedelta
@@ -73,10 +73,10 @@ HEADER=["signal_id","datetime_kst","TF","방향","세션","꼬리비율","진입
         "체결단계","단계라벨","익절가능N","최대도달R_본전복귀","최대도달R_트레일1base","엔트리기준_도달ktr","손절여부","도달봉수"]
 out=[]; stat={}
 for tf in ["2m","5m","10m"]:
-    bars,idx=load(f"xauusd_{tf}_2020-01-01_2026-06-16.csv"); n=len(bars)
+    bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv"); n=len(bars)
     u2,l2=boll([b[1] for b in bars],4,4.0)
     brk={}
-    with open(f"signals_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for s in rd:
             bi=idx.get(int(s[2]))
@@ -101,7 +101,7 @@ for tf in ["2m","5m","10m"]:
                         round(peakA-mult[fc-1],3),"Yes" if stopped else "No",pbA])
         cnt+=1
     stat[tf]=(len(brk),cnt)
-with open("ktr_takeprofit_N_v2_all_tf_2020-01-01_2026-06-16.csv","w",newline="",encoding="utf-8-sig") as fp:
+with open("ktr_takeprofit_N_v2_all_tf_2010-01-01_2026-06-16.csv","w",newline="",encoding="utf-8-sig") as fp:
     w=csv.writer(fp); w.writerow(HEADER); w.writerows(out)
 print(f"총 {len(out)}행 (KTR {sum(1 for r in out if r[7]=='KTR')}) -> ktr_takeprofit_N_v2_all_tf_...csv")
 for tf,(nb,ne) in stat.items():

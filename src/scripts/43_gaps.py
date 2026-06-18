@@ -4,7 +4,7 @@ import csv, time
 def es(e): return e//1000 if e>1e11 else e
 for tf in ["2m","5m","10m"]:
     ts=[]
-    with open(f"xauusd_{tf}_2020-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+    with open(f"xauusd_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
         for r in rd: ts.append(es(int(float(r[0]))))
     gaps=[]
