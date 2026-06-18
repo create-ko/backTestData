@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang=ko><head><meta charset=UTF-8><title>비용 민감도</title>
+<style>
+body{font-family:'Malgun Gothic',sans-serif;background:#12121f;color:#e0e0e0;margin:0;padding:20px}
+h1{color:#4fc3f7;text-align:center;font-size:1.2em}.sub{text-align:center;color:#8aa;font-size:.78em;margin-bottom:16px}
+.wrap{max-width:860px;margin:0 auto}canvas{background:#15151f;border-radius:8px;width:100%}
+.lg{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:10px 0;font-size:.8em}
+.lg span{display:inline-flex;align-items:center;gap:5px}.sw{width:16px;height:3px;display:inline-block}
+table{width:100%;border-collapse:collapse;font-size:.78em;margin-top:16px}
+th,td{padding:5px 7px;text-align:right;border-bottom:1px solid #263}th{color:#9cf;background:#1a1a2c}
+td:first-child,th:first-child{text-align:left}.pos{color:#5fd97e}.neg{color:#ff6b6b}
+</style></head><body><div class=wrap>
+<h1>비용 민감도 — net 누적 R vs 스프레드</h1>
+<div class=sub>확정설정(후방·TP1.5·6차). 0선 위=흑자. 손익분기 스프레드보다 비싸면 적자.</div>
+<canvas id=cv width=820 height=400></canvas>
+<div class=lg id=lg></div>
+<table id=tbl></table>
+</div><script>
+const DATA={"2m": {"v1": {"n": 31303, "gross": 437.2, "be": 0.15, "Kc": 2962.68, "spreads": [0.1, 0.2, 0.3, 0.5, 0.7, 1.0], "netR": [140.9, -155.3, -451.6, -1044.1, -1636.7, -2525.5], "cagr": [45.4, -42.1, -77.0, -96.4, -99.4, -100.0], "mdd": [43.3, 98.7, 100.0, 100.0, 100.0, 100.0]}, "v2": {"n": 22673, "gross": 416.7, "be": 0.2, "Kc": 2040.01, "spreads": [0.1, 0.2, 0.3, 0.5, 0.7, 1.0], "netR": [212.7, 8.7, -195.3, -603.3, -1011.3, -1623.3], "cagr": [85.3, -1.7, -47.9, -85.4, -95.9, -99.4], "mdd": [30.7, 84.3, 99.3, 100.0, 100.0, 100.0]}}, "5m": {"v1": {"n": 13016, "gross": 300.4, "be": 0.34, "Kc": 888.22, "spreads": [0.1, 0.2, 0.3, 0.5, 0.7, 1.0], "netR": [211.6, 122.8, 34.0, -143.7, -321.3, -587.8], "cagr": [88.4, 43.0, 8.5, -37.5, -64.1, -84.3], "mdd": [19.4, 26.2, 70.0, 98.2, 99.9, 100.0]}, "v2": {"n": 9310, "gross": 225.4, "be": 0.37, "Kc": 610.6, "spreads": [0.1, 0.2, 0.3, 0.5, 0.7, 1.0], "netR": [164.3, 103.3, 42.2, -79.9, -202.0, -385.2], "cagr": [63.8, 35.5, 12.1, -23.3, -47.5, -70.3], "mdd": [15.9, 27.6, 41.4, 87.2, 98.7, 100.0]}}, "10m": {"v1": {"n": 6873, "gross": 187.9, "be": 0.5, "Kc": 375.69, "spreads": [0.1, 0.2, 0.3, 0.5, 0.7, 1.0], "netR": [150.4, 112.8, 75.2, 0.1, -75.0, -187.8], "cagr": [57.6, 40.2, 24.8, -1.2, -21.8, -44.9], "mdd": [14.5, 20.1, 28.0, 64.2, 88.5, 98.4]}, "v2": {"n": 4853, "gross": 139.2, "be": 0.54, "Kc": 257.75, "spreads": [0.1, 0.2, 0.3, 0.5, 0.7, 1.0], "netR": [113.4, 87.6, 61.8, 10.3, -41.3, -118.6], "cagr": [41.0, 30.2, 20.2, 2.4, -12.8, -31.4], "mdd": [9.3, 11.3, 14.8, 30.7, 68.1, 92.7]}}};
+const SP=[0.10,0.20,0.30,0.50,0.70,1.00];
+const COL={'2m-v1':'#ff6b6b','2m-v2':'#ff9e6b','5m-v1':'#ffd54f','5m-v2':'#c5e15f','10m-v1':'#4fc3f7','10m-v2':'#5fd97e'};
+function draw(){
+ const cv=document.getElementById('cv'),x=cv.getContext('2d');const W=cv.width,H=cv.height,pad=52;
+ let all=[];for(const tf in DATA)for(const v in DATA[tf])all=all.concat(DATA[tf][v].netR);
+ const mn=Math.min(...all,0),mx=Math.max(...all);
+ const X=s=>pad+(W-pad-12)*((s-0.1)/(1.0-0.1));
+ const Y=v=>H-pad-(H-pad-20)*((v-mn)/(mx-mn));
+ x.strokeStyle='#3a5';x.lineWidth=1.5;x.beginPath();x.moveTo(pad,Y(0));x.lineTo(W-12,Y(0));x.stroke();
+ x.fillStyle='#678';x.font='10px sans-serif';
+ for(let g=0;g<=5;g++){const v=mn+(mx-mn)*g/5,yy=Y(v);x.strokeStyle='#1e2a3a';x.beginPath();x.moveTo(pad,yy);x.lineTo(W-12,yy);x.stroke();x.fillText(v.toFixed(0)+'R',8,yy+3);}
+ SP.forEach(s=>{x.fillStyle='#789';x.fillText('$'+s.toFixed(2),X(s)-12,H-pad+16);});
+ for(const tf in DATA)for(const v in DATA[tf]){const d=DATA[tf][v],key=tf+'-'+v;
+  x.strokeStyle=COL[key];x.lineWidth=2.4;x.beginPath();
+  d.netR.forEach((r,i)=>{const xx=X(SP[i]),yy=Y(r);i?x.lineTo(xx,yy):x.moveTo(xx,yy)});x.stroke();
+  d.netR.forEach((r,i)=>{x.fillStyle=COL[key];x.beginPath();x.arc(X(SP[i]),Y(r),3,0,7);x.fill();});}
+ x.fillStyle='#789';x.fillText('스프레드(라운드턴 $/랏) →',W-200,H-8);
+}
+let lg='';for(const tf in DATA)for(const v in DATA[tf]){const key=tf+'-'+v;lg+=`<span><span class=sw style="background:${COL[key]}"></span>${key} (손익분기 $${DATA[tf][v].be})</span>`;}
+document.getElementById('lg').innerHTML=lg;
+let h='<tr><th>TF·버전</th><th>손익분기$</th>'+SP.map(s=>'<th>$'+s.toFixed(2)+'</th>').join('')+'</tr>';
+for(const tf in DATA)for(const v in DATA[tf]){const d=DATA[tf][v];
+ h+=`<tr><td>${tf} ${v}</td><td>$${d.be}</td>`+d.netR.map(r=>`<td class=${r>=0?'pos':'neg'}>${r>=0?'+':''}${r}R</td>`).join('')+'</tr>';}
+document.getElementById('tbl').innerHTML=h;
+draw();
+</script></body></html>

@@ -1,0 +1,16 @@
+# 대용량 시세 데이터 — fetch 툴로 재생성 가능 (GitHub 100MB 제한 초과)
+*.csv
+
+# Node
+**/node_modules/
+
+# Fetch 중간 산출물 / 캐시
+**/.cache/
+**/parts/
+
+# 참고/3rd-party 문서
+*.pdf
+
+# OS
+Thumbs.db
+.DS_Store
