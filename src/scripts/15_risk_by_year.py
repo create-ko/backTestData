@@ -8,7 +8,7 @@ import csv, json
 from collections import defaultdict
 
 SRC="sim_tp2_all_tf_2010-01-01_2026-06-16.csv"
-OUT="risk_by_year.html"
+OUT="../result/risk_by_year.html"
 MULT=[0,1,2,3,4,4.5]
 def win_pnl(k): return sum(MULT[i]-MULT[k-1]+2.0 for i in range(k))
 STOP=sum(MULT[i]-5 for i in range(6))   # -15.5

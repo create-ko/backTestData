@@ -8,17 +8,17 @@ import csv, json, sys
 from collections import defaultdict
 
 SRC = sys.argv[1] if len(sys.argv) > 1 else "ktr_takeprofit_N_all_tf_2010-01-01_2026-06-16.csv"
-OUT = sys.argv[2] if len(sys.argv) > 2 else "tf_level_chart.html"
+OUT = sys.argv[2] if len(sys.argv) > 2 else "../result/tf_level_chart.html"
 LAB_ORDER = ["바로출발","1번눌림","2번눌림","3번눌림","4번눌림","6차"]
 LAB_KTR = {"바로출발":"0","1번눌림":"-1","2번눌림":"-2","3번눌림":"-3","4번눌림":"-4","6차":"-4.5"}
 MEAS = {"트레일(결국 얼마나)":"최대도달R_트레일1base"}
 TFS = ["2m","5m","10m"]
-YEARS = ["전체","2020","2021","2022","2023","2024","2025","2026"]
 THR = [1,2,3,4,5]
 WICKS = [("전체",None),("≤0.1",0.1),("≤0.2",0.2),("≤0.3",0.3)]
 
 rows = [r for r in csv.DictReader(open(SRC, encoding="utf-8-sig")) if r["손절여부"]=="No"]
 for r in rows: r["_y"]=r["datetime_kst"][:4]; r["_w"]=float(r["꼬리비율"])
+YEARS = ["전체"] + sorted({r["_y"] for r in rows})   # 데이터 기간에서 자동 도출(2010-2026)
 
 def agg(v):
     if not v: return None
@@ -81,7 +81,8 @@ HTML=r"""<!doctype html><html lang="ko"><head><meta charset="utf-8">
 <canvas id="ch" height="150"></canvas>
 <table id="tbl"></table>
 <div class="note">· 막대 = 단계별 2m·5m·10m 비교 · 괄호 = 그리드 바닥 위치(ktr) · <span class="lown">빨강 n</span> = 표본 30 미만<br>
-· 연도를 바꾸면 국면별(2020 코로나·2022 추세장 등) 회복폭 변화를 볼 수 있음</div>
+· 연도를 바꾸면 국면별(2014-15 하락·2020 코로나·2022 추세장 등) 회복폭 변화를 볼 수 있음 (전 기간 2010-2026)<br>
+· <span class="lown">[생존편향 주의]</span> 각 '단계' 칸은 <b>그 깊이에서 멈춘(=손절 안 난)</b> 트레이드만 모은 것. 더 깊이 가서 6차 손절된 건은 더 깊은 칸으로 빠진다. 그래서 '1번눌림=100% 도달'은 착시 — 실제 −1을 찍은 거래의 ~12%(10m 12.3%)는 끝까지 가서 손실. 진입 시점엔 어디서 멈출지 모름. (`50_pullback_outcome.py`)</div>
 </div>
 <script>
 const DATA=__DATA__;const TFS=["2m","5m","10m"];const COL={"2m":"#ffce4d","5m":"#7fb2ff","10m":"#5dcaa5"};const THR=__THR__;
