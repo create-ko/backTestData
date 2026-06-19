@@ -29,7 +29,19 @@ def test_detect_cross():
     assert cr[3] is None
     assert cr[4] == "dead"
 
-TESTS = [test_sma_basic, test_bollinger_population_std, test_detect_cross]
+def test_compute_indicators_shapes():
+    bars = [M.Bar(i * 300, 10.0 + i, 11.0 + i, 9.0 + i, 10.0 + i) for i in range(10)]
+    ind = M.compute_indicators(bars, sma_fast=2, sma_slow=4, bb_len=3, bb_mult=2.0)
+    assert set(ind.keys()) == {"sma_fast", "sma_slow", "up", "lo", "cross"}
+    assert len(ind["sma_fast"]) == 10
+    assert ind["sma_fast"][0] is None
+    assert ind["sma_fast"][1] is not None
+    assert ind["sma_slow"][3] is not None
+    assert ind["up"][2] is not None
+    assert len(ind["cross"]) == 10
+
+TESTS = [test_sma_basic, test_bollinger_population_std, test_detect_cross,
+         test_compute_indicators_shapes]
 
 def run():
     failed = 0

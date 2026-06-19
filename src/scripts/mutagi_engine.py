@@ -51,3 +51,13 @@ def detect_cross(fast, slow):
         elif a1 < b1 and a0 >= b0:
             out[i] = "dead"
     return out
+
+
+def compute_indicators(bars, sma_fast=20, sma_slow=120, bb_len=4, bb_mult=4.0):
+    closes = [b.close for b in bars]
+    opens = [b.open for b in bars]
+    f = sma(closes, sma_fast)
+    s = sma(closes, sma_slow)
+    up, lo = bollinger(opens, bb_len, bb_mult)
+    cross = detect_cross(f, s)
+    return {"sma_fast": f, "sma_slow": s, "up": up, "lo": lo, "cross": cross}
