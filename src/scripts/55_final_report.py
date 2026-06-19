@@ -1,0 +1,176 @@
+# -*- coding: utf-8 -*-
+"""55 - 돌파매매 최종 종합 리포트(final_report.html). 지금까지 전부 종합.
+핵심 수치는 JSON에서 읽고(39 seq_hours / 35 cost_breakeven / 42 holding), 결론·교훈은 종합 서술.
+부속 리포트(result/의 다른 html)로 연결. 먼저 39·35·42 실행돼 JSON 있어야 함. data/에서 실행.
+출력: ../result/final_report.html (자기완결, 부속링크는 같은 result/ 폴더 상대경로)."""
+import json, os
+
+SEQ=json.load(open("seq_hours_returns.json",encoding="utf-8"))
+BE=json.load(open("cost_breakeven.json",encoding="utf-8"))
+try: HOLD=json.load(open("holding_times.json",encoding="utf-8"))
+except: HOLD={}
+YRS=SEQ["10m"]["v1"]["yrs"]
+
+# 부속 리포트(존재하는 것만 링크)
+SUB=[("breakout_reach.html","★ 돌파 분출 도달(최종 메인 · base/세션/방향/연도/슬리피지)"),
+     ("report.html","전 기간 OOS 종합(분봉·연도)"),
+     ("stage_upside.html","단계별 최대상승/놓친수익"),
+     ("stage_behavior.html","가격행동 연도별(TP-free)"),
+     ("exit_compare.html","출구규칙 3종 net 비교"),
+     ("tf_level_chart.html","단계x분봉x연도 회복폭(v1)"),
+     ("tf_level_chart_v2.html","회복폭(v2 풀백)"),
+     ("cost_sensitivity.html","비용 민감도"),
+     ("fail_charts.html","실패거래 멀티-TF 캔들 뷰어"),
+     ("returns_by_year.html","연도별 수익률·자산곡선"),
+     ("risk_by_year.html","연도별 손절률·기대값")]
+existing=[(f,d) for f,d in SUB if os.path.exists(f"../result/{f}")]
+
+def perf(tf,ver):
+    d=SEQ[tf][ver]; return d["totR"],d["cagr"],d["mdd"],d["winrate"],d["n"]
+
+DATA={"SEQ":{tf:{v:{"R":SEQ[tf][v]["totR"],"cagr":SEQ[tf][v]["cagr"],"mdd":SEQ[tf][v]["mdd"],
+                   "win":SEQ[tf][v]["winrate"],"n":SEQ[tf][v]["n"]} for v in ("v1","v2")} for tf in ("2m","5m","10m")},
+      "BE":BE,"YRS":round(YRS,2)}
+
+v1=DATA["SEQ"]["10m"]["v1"]; v2=DATA["SEQ"]["10m"]["v2"]
+print(f"final_report 입력: 10m v1 CAGR {v1['cagr']}%/MDD {v1['mdd']}%, v2 {v2['cagr']}%/MDD {v2['mdd']}% (기간 {YRS:.1f}년)")
+
+HTML="""<!DOCTYPE html><html lang=ko><head><meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>돌파매매(BB돌파+KTR그리드) 최종 종합 리포트</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Malgun Gothic','Segoe UI',sans-serif;background:#0f1320;color:#dfe6f0;margin:0;line-height:1.65}
+.wrap{max-width:960px;margin:0 auto;padding:26px}
+h1{color:#4fc3f7;font-size:1.6em;margin:0 0 2px;text-align:center}
+.date{text-align:center;color:#7e8aa0;font-size:.82em;margin-bottom:14px}
+h2{color:#7fd4ff;font-size:1.2em;margin:30px 0 8px;padding-bottom:6px;border-bottom:2px solid #25324d}
+h3{color:#a9c4e0;font-size:1em;margin:14px 0 4px}
+p,li{font-size:.9em;color:#c4cfde}
+.tldr{background:#15203a;border:1px solid #2a3e63;border-radius:10px;padding:16px 18px;margin:14px 0}
+.tldr b{color:#fff}
+.alert{background:#2a1a1a;border:1px solid #6b3030;border-radius:10px;padding:14px 18px;margin:12px 0}
+.alert b{color:#ffb4b4}
+table{width:100%;border-collapse:collapse;font-size:.84em;margin:8px 0}
+th,td{padding:6px 9px;text-align:right;border-bottom:1px solid #243150}
+th{color:#9cc4e8;background:#16203a}td:first-child,th:first-child{text-align:left}
+.pos{color:#5fd97e}.neg{color:#ff6f6f}.warn{color:#ffcf5c}.mut{color:#7e8aa0}
+.best{background:#16331f}.bad{background:#331616}
+ul{margin:6px 0;padding-left:20px}.note{font-size:.8em;color:#8493a8;font-style:italic}
+.subgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+@media(max-width:640px){.subgrid{grid-template-columns:1fr}}
+.sub{display:block;background:#15203a;border:1px solid #28395c;border-radius:8px;padding:9px 12px;text-decoration:none;color:#bcd3f0}
+.sub:hover{border-color:#4fc3f7}.sub b{color:#7fd4ff;font-size:.9em}.sub span{font-size:.78em;color:#8aa}
+code{background:#1a2540;padding:1px 5px;border-radius:4px;color:#bcd3f0}
+</style></head><body><div class=wrap>
+
+<h1>돌파매매 최종 종합 리포트</h1>
+<div class=date>볼린저밴드 돌파 + KTR 그리드(물타기) · 골드 XAUUSD · Dukascopy MID __YRS__년(2010-2026) · 2·5·10분 · 실거래 룰(순차+08~24시+비용$0.30+리스크2%)</div>
+
+<div class=tldr>
+<b>한 줄 결론.</b> 이 전략은 <b>10분봉에서만 실거래 흑자</b>이며(2·5분은 비용으로 사망), 전 기간 기대치는
+<b>CAGR +__V1C__~+__V2C__% / MDD __V2M__~__V1M__%</b>로 <b>엣지는 얇고 낙폭은 크다.</b>
+가격 <b>행동(반등·도달)은 분봉·연도 무관하게 안정적</b>이지만, 실거래 성패는 <b>비용과 국면</b>이 가른다.
+1차의 "+18.7%"는 우호적 국면(2020-26) 산물이었다.
+</div>
+
+<div class=alert>
+<b>가장 중요한 교훈.</b> 동일 규칙을 6.5년(2020-26)에서 __YRS__년(2010-26)으로 넓히면 10m v1 CAGR가
+<b>+18.7% → +__V1C__%</b>, MDD가 <b>14.9% → __V1M__%</b>로 급변하고 <b>v2가 v1을 역전</b>한다.
+"연 18%"로 기대하면 안 되며, 진짜 기대치는 이 리포트의 전 기간 수치다.
+</div>
+
+<h2>1. 확정 전략 규칙</h2>
+<table>
+<tr><th>항목</th><th>규칙</th></tr>
+<tr><td>신호</td><td>BB1(종가 SMA20±2σ) 돌파 + BB2(시가 SMA4±4σ), 모표준편차</td></tr>
+<tr><td>진입 방향</td><td><b>돌파 방향과 같은 쪽</b>(상단돌파→매수/하단돌파→매도) — 추세 추종형</td></tr>
+<tr><td>진입 시점</td><td>v1=돌파 다음 봉 즉시 / v2=돌파 후 BB2 반대밴드 풀백 터치</td></tr>
+<tr><td>그리드</td><td>돌파가 기준 0/−1/−2/−3/−4/−4.5 ×KTR (6차 물타기)</td></tr>
+<tr><td>랏(후방)</td><td>1·1·2·2·3·4 (총 13단위)</td></tr>
+<tr><td>익절</td><td>가장 깊은 체결 + 1.5×KTR (전 포지션 일괄)</td></tr>
+<tr><td>손절</td><td>−5×KTR 풀스톱 (6차는 바닥+1.0 반등 탈출)</td></tr>
+<tr><td>운용</td><td>한 번에 1개(순차) · KST 08~24시 진입 · 리스크 풀스톱=자본 2~3% · 진입필터 없음</td></tr>
+</table>
+
+<h2>2. 전 기간(2010-2026) 실거래 성과</h2>
+<table id=perf></table>
+<p class=note>net R=누적R(풀스톱=−1R). CAGR=2% 복리(순차라 실현가능). <b>10분만 흑자, v2가 v1 우위(net·MDD·비용여유)</b>. 2·5분은 비용으로 적자.</p>
+<h3>인샘플(2020-26) vs 전 기간 — 1차 결론은 국면 의존</h3>
+<table>
+<tr><th>10분</th><th>인샘플 2020-26</th><th>전 기간 2010-26</th></tr>
+<tr><td>v1 CAGR / MDD</td><td>+18.7% / 14.9%</td><td class=neg>+__V1C__% / __V1M__%</td></tr>
+<tr><td>v2 CAGR / MDD</td><td>+10.7% / 9.5%</td><td>+__V2C__% / __V2M__%</td></tr>
+<tr><td>손익분기$ v1/v2</td><td>$0.50 / $0.54</td><td class=warn>$__BE1__ / $__BE2__</td></tr>
+</table>
+
+<h2>3. 가격 행동 — 안정적이지만 그게 흑자를 뜻하진 않음</h2>
+<ul>
+<li><b>반등 단계 분포(10m, 수익 중)</b>: 0ktr(바로출발) ~41% / −1ktr ~27% / −2ktr ~17% / −3ktr ~9% / −4ktr이상 ~6%.</li>
+<li><b>단계별 진입가 기준 도달(중앙)</b>: 0ktr <b>+2.0</b> → −1ktr +1.1 → −2ktr +0.5 → −3ktr +0.4. <b>깊게 눌릴수록 위로 덜 간다</b>(수달님 "깊을수록 첫 진입가 복귀 드묾"과 동일 결).</li>
+<li><b>분봉·연도 무관 안정</b>: 2·5·10분 반등분포·도달·승률(~95%)이 거의 같고, 2010-26 매년 비슷. → 행동의 엣지 '모양'은 견고.</li>
+<li class=warn><b>함정</b>: 행동이 좋아 보여도 실거래는 <b>비용+순차+복리 경로</b>가 가른다(아래 §5). per-signal 통계로 usability 판정 금지.</li>
+</ul>
+<p class=note>상세: 부속 <code>stage_upside.html</code> / <code>stage_behavior.html</code>.</p>
+
+<h2>4. 출구 규칙 비교 (10m v1, net)</h2>
+<table>
+<tr><th>규칙</th><th>CAGR</th><th>MDD</th><th>비고</th></tr>
+<tr class=best><td>고정 1.5KTR (확정안)</td><td class=pos>+__V1C__%</td><td>__V1M__%</td><td>현 기준</td></tr>
+<tr><td>0차 본전청산(level0)</td><td>+2.2%</td><td class=neg>72%</td><td>승률↑이나 net 우위 없음 → 기각</td></tr>
+<tr><td>트레일링(1.0 되밀림)</td><td class=warn>+62.6%</td><td>12%</td><td>유망하나 <b>숫자 과장</b>(아래)</td></tr>
+</table>
+<div class=alert>
+<b>트레일링 주의.</b> +62.6%는 이상적 인트라바 체결·무슬리피지·16년 복리 증폭의 결과로 <b>거의 확실히 과장</b>이다.
+방향(놓친 수익 꼬리를 잡아 fixed를 능가)은 일관되나, 믿으려면 <b>슬리피지·갭·트레일폭 민감도·워크포워드</b> 검증 필수. "검증된 +62%"가 아니다.
+</div>
+
+<h2>5. 비용 — 생사를 가른다</h2>
+<table id=bet></table>
+<p class=note>전 기간 재계산 손익분기. 10m도 $0.30~0.36로 가정비용과 거의 맞붙음 → 실비용 >$0.40이면 10m도 적자. 1차의 $0.50대는 인샘플 산물.</p>
+
+<h2>6. 손실 복기</h2>
+<ul>
+<li>손실은 <b>전부 −5 풀스톱(−1R 고정)</b> — 크기 동일, 핵심은 빈도·군집. 전 기간 손절률 ~__LR__%(≈ 수달 4.4%).</li>
+<li><b>방향 거의 대칭</b>(매수 4.1% / 매도 4.5%), 세션 편차 작음(3.7~5.5%), <b>손실 봉의 꼬리가 더 길지 않음</b> → 사전 필터로 못 거른다(필터 무용 재확인).</li>
+<li>대응: 거르기보다 <b>그리드로 되돌림 구제 + 리스크 2~3%로 −1R을 견딘다</b>. 상세: 부속 <code>fail_charts.html</code>.</li>
+</ul>
+
+<h2>7. 핵심 교훈 · 미해결</h2>
+<ul>
+<li class=neg><b>국면 의존성(최대 리스크)</b>: 2020-26 호성적은 국면 산물. 미래가 2014-19형이면 수년 적자·깊은 낙폭 가능.</li>
+<li class=warn><b>비용 민감도</b>: 10m 손익분기 ≈ 가정비용. 브로커 실비용 확인 필수.</li>
+<li class=warn><b>v2 우선</b>: 전 기간선 v2(풀백)가 v1보다 net·MDD·비용여유 우위.</li>
+<li class=mut><b>생존편향</b>: '반등 단계' 통계는 이긴 것만. −1 찍은 거래의 ~12%는 6차 손절로 끝남.</li>
+<li class=mut><b>미해결</b>: ① 시간 손절(정체 그리드/약세장 방어) 미검증 ② 트레일링 현실화 검증 ③ FX 3쌍 본격 분석 ④ 추가 전략 1개(논의중).</li>
+</ul>
+
+<h2>8. 부속 리포트</h2>
+<div class=subgrid id=subs></div>
+<div class=note style="margin-top:24px;text-align:center">과거 데이터(2010-2026) 백테스트. 미래 수익을 보장하지 않음. · 골드 단독 결과(FX 미검증).</div>
+
+<script>
+const D=__DATA__;const SUB=__SUB__;
+(function(){let h='<tr><th>분봉·전략</th><th>진입수</th><th>net R</th><th>CAGR</th><th>MDD</th><th>승률</th><th>판정</th></tr>';
+ [['10m','v2'],['10m','v1'],['5m','v2'],['5m','v1'],['2m','v2'],['2m','v1']].forEach(([t,v])=>{const p=D.SEQ[t][v];
+  const ok=p.cagr>0&&p.mdd<50,tag=ok?'<span class=pos>흑자</span>':(p.cagr>0?'<span class=warn>취약</span>':'<span class=neg>적자</span>');
+  h+=`<tr class=${ok?'best':(p.cagr<0?'bad':'')}><td>${t} ${v}</td><td>${p.n.toLocaleString()}</td><td class=${p.R>=0?'pos':'neg'}>${p.R>=0?'+':''}${p.R}</td><td class=${p.cagr>=0?'pos':'neg'}>${p.cagr>=0?'+':''}${p.cagr}%</td><td class=${p.mdd>30?'neg':''}>${p.mdd}%</td><td>${p.win}%</td><td>${tag}</td></tr>`;});
+ document.getElementById('perf').innerHTML=h;})();
+(function(){let h='<tr><th>분봉</th><th>v1 손익분기$</th><th>v2 손익분기$</th><th>판정($0.30 대비)</th></tr>';
+ ['2m','5m','10m'].forEach(t=>{const b=D.BE[t];const ver=t=='10m'?'<span class=warn>빡빡(맞붙음)</span>':'<span class=neg>적자/사망</span>';
+  h+=`<tr class=${t=='10m'?'best':'bad'}><td>${t}</td><td>$${b.v1}</td><td>$${b.v2}</td><td>${ver}</td></tr>`;});
+ document.getElementById('bet').innerHTML=h;})();
+document.getElementById('subs').innerHTML=SUB.map(s=>`<a class=sub href="${s[0]}"><b>${s[0]}</b><br><span>${s[1]}</span></a>`).join('');
+</script>
+</div></body></html>"""
+
+rep={"__YRS__":f"{YRS:.1f}",
+ "__V1C__":str(v1["cagr"]),"__V1M__":str(v1["mdd"]),
+ "__V2C__":str(v2["cagr"]),"__V2M__":str(v2["mdd"]),
+ "__BE1__":str(BE["10m"]["v1"]),"__BE2__":str(BE["10m"]["v2"]),
+ "__LR__":str(round(100-v1["win"],1))}
+out=HTML
+for k,val in rep.items(): out=out.replace(k,val)
+out=out.replace("__DATA__",json.dumps(DATA,ensure_ascii=False)).replace("__SUB__",json.dumps(existing,ensure_ascii=False))
+with open("../result/final_report.html","w",encoding="utf-8") as f: f.write(out)
+print(f"-> ../result/final_report.html (부속 링크 {len(existing)}개)")

@@ -4,6 +4,10 @@
 # Node
 **/node_modules/
 
+# Python 캐시
+**/__pycache__/
+*.pyc
+
 # Fetch 중간 산출물 / 캐시
 **/.cache/
 **/parts/

@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang=ko><head><meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>단계별 최대상승 & 놓친 수익 (KTR vs BREAKOUT)</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Malgun Gothic','Segoe UI',sans-serif;background:#0f1320;color:#dfe6f0;margin:0;line-height:1.6}
+.wrap{max-width:980px;margin:0 auto;padding:24px}
+h1{color:#4fc3f7;font-size:1.5em;margin:0 0 4px;text-align:center}
+.date{text-align:center;color:#7e8aa0;font-size:.82em;margin-bottom:16px}
+p,li{font-size:.92em;color:#c4cfde}
+.box{background:#15203a;border:1px solid #2a3e63;border-radius:10px;padding:14px 18px;margin:12px 0}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;align-items:center}
+.ctl .lbl{color:#7e8aa0;font-size:.8em;margin-right:4px}
+.btn{padding:6px 14px;border:1px solid #345;background:transparent;color:#9cf;border-radius:6px;cursor:pointer;font-size:.85em}
+.btn.on{background:#4fc3f7;color:#0f1320;font-weight:bold}
+table{width:100%;border-collapse:collapse;font-size:.85em;margin:8px 0}
+th,td{padding:7px 8px;text-align:right;border-bottom:1px solid #243150}
+th{color:#9cc4e8;background:#16203a}
+td:first-child,th:first-child{text-align:left;font-weight:bold}
+.hi{background:#13241a}
+.note{font-size:.82em;color:#8493a8;font-style:italic;margin-top:6px}
+.good{color:#5fd97e}.warn{color:#ffcf5c}b{color:#fff}
+</style></head><body><div class=wrap>
+<h1>단계별 "얼마나 올라갔나" & "더 먹을 수 있었나"</h1>
+<div class=date>2010-2026 · 깨끗한 그리드 시뮬(이긴 트레이드) · 손절(-5)·미청산 제외 · base 토글: KTR vs 돌파봉</div>
+
+<div class=box>
+<p><b>이긴 단계</b> = 익절(가장 깊은 체결 +1.5)에 도달해 이긴 시점의 눌림 깊이.</p>
+<ul>
+<li><b>진입가 기준 최대상승</b>: 첫 진입가 대비 실제 최고 도달(익절 후에도 보유 가정). 단위 = 선택한 base(KTR 또는 돌파봉).</li>
+<li><b class=good>익절선 초과분</b> = (가장 깊은 체결 기준 최대도달) − 1.5 = 1.5에서 안 끊었으면 더 먹을 수 있던 양.
+<b>초과≥X = 초과분이 X "이상"인 누적 비율</b> (딱 X까지만 간 게 아니라 X 이상 전부 포함). 그래서 ≥0.5 > ≥1.0 > ≥2.0 순으로 작아짐.</li>
+<li><b>base 비교</b>: KTR=세션 변동성 단위 / 돌파봉=돌파 캔들 크기 단위. 그리드 간격·도달값 모두 그 base 단위라, 두 base의 숫자는 <b>각자 단위 안에서</b> 해석.</li>
+</ul>
+</div>
+
+<div class=ctl><span class=lbl>base</span><span id=basesel></span></div>
+<div class=ctl><span class=lbl>진입</span><span id=versel></span></div>
+<div class=ctl><span class=lbl>분봉</span><span id=tfsel></span></div>
+<table id=tbl></table>
+<p class=note id=ctx></p>
+
+<div class=box>
+<p class=note>※ <b>진입가 기준 최대상승</b>이 핵심: 깊게 눌릴수록 진입가 위로는 <b>덜</b> 올라감(바로출발 ~+2 → 3번눌림 ~+0.4). 깊은 단계의 '초과분'이 커 보이는 건 <b>깊은 바닥에서 본전 근처로 되돌아온 회복분(살아남은 소수)</b>이지 진입가 위 새 수익이 아님.</p>
+<p class=warn>⚠ 생존편향: 이 표는 <b>이긴 트레이드</b>만. 같은 깊이까지 갔다 못 버틴 건 손절(-5)로 빠짐(위 손절% 참조). (50_pullback_outcome 참조)</p>
+</div>
+
+<script>
+const D={"KTR": {"v1": {"2m": {"_ctx": {"n": 87071, "stop": 4421, "open": 7, "stop_pct": 5.1}, "바로출발": {"n": 33221, "mfeE_med": 2.06, "exc_med": 0.56, "exc0.5": 54.1, "exc1.0": 29.1, "exc1.5": 15.9, "exc2.0": 9.1}, "1번눌림": {"n": 21682, "mfeE_med": 1.12, "exc_med": 0.62, "exc0.5": 59.3, "exc1.0": 25.2, "exc1.5": 13.4, "exc2.0": 6.8}, "2번눌림": {"n": 13794, "mfeE_med": 0.46, "exc_med": 0.96, "exc0.5": 100.0, "exc1.0": 46.4, "exc1.5": 19.5, "exc2.0": 3.2}, "3번눌림": {"n": 8006, "mfeE_med": 0.38, "exc_med": 1.88, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 39.5}, "4번눌림": {"n": 2944, "mfeE_med": 0.39, "exc_med": 2.89, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 2996, "mfeE_med": 0.39, "exc_med": 3.39, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}, "5m": {"_ctx": {"n": 36539, "stop": 1646, "open": 5, "stop_pct": 4.5}, "바로출발": {"n": 14094, "mfeE_med": 2.04, "exc_med": 0.54, "exc0.5": 52.7, "exc1.0": 28.2, "exc1.5": 15.4, "exc2.0": 9.0}, "1번눌림": {"n": 9273, "mfeE_med": 1.1, "exc_med": 0.6, "exc0.5": 57.7, "exc1.0": 23.5, "exc1.5": 11.8, "exc2.0": 6.2}, "2번눌림": {"n": 5737, "mfeE_med": 0.48, "exc_med": 0.98, "exc0.5": 100.0, "exc1.0": 48.1, "exc1.5": 19.9, "exc2.0": 3.1}, "3번눌림": {"n": 3329, "mfeE_med": 0.38, "exc_med": 1.88, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 39.1}, "4번눌림": {"n": 1271, "mfeE_med": 0.39, "exc_med": 2.89, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 1184, "mfeE_med": 0.38, "exc_med": 3.38, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}, "10m": {"_ctx": {"n": 19062, "stop": 824, "open": 2, "stop_pct": 4.3}, "바로출발": {"n": 7436, "mfeE_med": 2.03, "exc_med": 0.53, "exc0.5": 52.0, "exc1.0": 27.1, "exc1.5": 15.0, "exc2.0": 9.1}, "1번눌림": {"n": 4892, "mfeE_med": 1.08, "exc_med": 0.58, "exc0.5": 56.8, "exc1.0": 23.0, "exc1.5": 11.8, "exc2.0": 6.5}, "2번눌림": {"n": 3042, "mfeE_med": 0.48, "exc_med": 0.98, "exc0.5": 100.0, "exc1.0": 47.7, "exc1.5": 20.2, "exc2.0": 3.1}, "3번눌림": {"n": 1711, "mfeE_med": 0.38, "exc_med": 1.88, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 39.5}, "4번눌림": {"n": 553, "mfeE_med": 0.4, "exc_med": 2.9, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 602, "mfeE_med": 0.41, "exc_med": 3.41, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}}, "v2": {"2m": {"_ctx": {"n": 61699, "stop": 2911, "open": 7, "stop_pct": 4.7}, "바로출발": {"n": 24656, "mfeE_med": 2.06, "exc_med": 0.56, "exc0.5": 53.9, "exc1.0": 27.6, "exc1.5": 14.1, "exc2.0": 7.3}, "1번눌림": {"n": 15101, "mfeE_med": 1.1, "exc_med": 0.6, "exc0.5": 58.4, "exc1.0": 23.8, "exc1.5": 12.3, "exc2.0": 6.4}, "2번눌림": {"n": 9555, "mfeE_med": 0.48, "exc_med": 0.98, "exc0.5": 100.0, "exc1.0": 48.2, "exc1.5": 19.9, "exc2.0": 2.1}, "3번눌림": {"n": 5522, "mfeE_med": 0.43, "exc_med": 1.93, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 42.8}, "4번눌림": {"n": 1982, "mfeE_med": 0.42, "exc_med": 2.92, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 1965, "mfeE_med": 0.4, "exc_med": 3.4, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}, "5m": {"_ctx": {"n": 25880, "stop": 1088, "open": 4, "stop_pct": 4.2}, "바로출발": {"n": 10377, "mfeE_med": 2.03, "exc_med": 0.53, "exc0.5": 51.6, "exc1.0": 25.3, "exc1.5": 12.7, "exc2.0": 6.6}, "1번눌림": {"n": 6382, "mfeE_med": 1.09, "exc_med": 0.59, "exc0.5": 56.6, "exc1.0": 21.9, "exc1.5": 10.5, "exc2.0": 5.2}, "2번눌림": {"n": 4162, "mfeE_med": 0.47, "exc_med": 0.97, "exc0.5": 100.0, "exc1.0": 47.0, "exc1.5": 18.7, "exc2.0": 1.8}, "3번눌림": {"n": 2276, "mfeE_med": 0.42, "exc_med": 1.92, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 42.7}, "4번눌림": {"n": 782, "mfeE_med": 0.43, "exc_med": 2.93, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 809, "mfeE_med": 0.4, "exc_med": 3.4, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}, "10m": {"_ctx": {"n": 13521, "stop": 550, "open": 2, "stop_pct": 4.1}, "바로출발": {"n": 5387, "mfeE_med": 1.99, "exc_med": 0.49, "exc0.5": 49.3, "exc1.0": 23.9, "exc1.5": 12.1, "exc2.0": 6.5}, "1번눌림": {"n": 3471, "mfeE_med": 1.06, "exc_med": 0.56, "exc0.5": 55.1, "exc1.0": 20.5, "exc1.5": 10.1, "exc2.0": 5.8}, "2번눌림": {"n": 2173, "mfeE_med": 0.48, "exc_med": 0.98, "exc0.5": 100.0, "exc1.0": 48.4, "exc1.5": 18.3, "exc2.0": 2.0}, "3번눌림": {"n": 1188, "mfeE_med": 0.43, "exc_med": 1.93, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 43.4}, "4번눌림": {"n": 372, "mfeE_med": 0.41, "exc_med": 2.91, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 378, "mfeE_med": 0.45, "exc_med": 3.45, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}}}, "BREAKOUT": {"v1": {"2m": {"_ctx": {"n": 87071, "stop": 4585, "open": 2, "stop_pct": 5.3}, "바로출발": {"n": 33477, "mfeE_med": 2.02, "exc_med": 0.52, "exc0.5": 51.1, "exc1.0": 25.2, "exc1.5": 12.5, "exc2.0": 6.4}, "1번눌림": {"n": 21254, "mfeE_med": 1.13, "exc_med": 0.63, "exc0.5": 60.0, "exc1.0": 23.8, "exc1.5": 12.0, "exc2.0": 6.0}, "2번눌림": {"n": 13469, "mfeE_med": 0.48, "exc_med": 0.98, "exc0.5": 100.0, "exc1.0": 47.9, "exc1.5": 19.7, "exc2.0": 2.4}, "3번눌림": {"n": 8059, "mfeE_med": 0.4, "exc_med": 1.9, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 41.2}, "4번눌림": {"n": 3059, "mfeE_med": 0.4, "exc_med": 2.9, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 3166, "mfeE_med": 0.38, "exc_med": 3.38, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}, "5m": {"_ctx": {"n": 36539, "stop": 1912, "open": 1, "stop_pct": 5.2}, "바로출발": {"n": 14288, "mfeE_med": 2.0, "exc_med": 0.5, "exc0.5": 50.1, "exc1.0": 23.7, "exc1.5": 11.5, "exc2.0": 6.0}, "1번눌림": {"n": 8830, "mfeE_med": 1.11, "exc_med": 0.61, "exc0.5": 59.1, "exc1.0": 22.9, "exc1.5": 11.5, "exc2.0": 5.7}, "2번눌림": {"n": 5533, "mfeE_med": 0.49, "exc_med": 0.99, "exc0.5": 100.0, "exc1.0": 49.2, "exc1.5": 19.8, "exc2.0": 2.2}, "3번눌림": {"n": 3376, "mfeE_med": 0.41, "exc_med": 1.91, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 42.0}, "4번눌림": {"n": 1265, "mfeE_med": 0.38, "exc_med": 2.88, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 1334, "mfeE_med": 0.37, "exc_med": 3.37, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}, "10m": {"_ctx": {"n": 19062, "stop": 970, "open": 1, "stop_pct": 5.1}, "바로출발": {"n": 7398, "mfeE_med": 2.0, "exc_med": 0.5, "exc0.5": 49.7, "exc1.0": 24.1, "exc1.5": 11.9, "exc2.0": 5.9}, "1번눌림": {"n": 4674, "mfeE_med": 1.1, "exc_med": 0.6, "exc0.5": 58.9, "exc1.0": 22.9, "exc1.5": 11.1, "exc2.0": 5.5}, "2번눌림": {"n": 2838, "mfeE_med": 0.49, "exc_med": 0.99, "exc0.5": 100.0, "exc1.0": 49.3, "exc1.5": 20.3, "exc2.0": 2.1}, "3번눌림": {"n": 1818, "mfeE_med": 0.42, "exc_med": 1.92, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 43.4}, "4번눌림": {"n": 642, "mfeE_med": 0.43, "exc_med": 2.93, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 721, "mfeE_med": 0.4, "exc_med": 3.4, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}}, "v2": {"2m": {"_ctx": {"n": 61699, "stop": 3056, "open": 2, "stop_pct": 5.0}, "바로출발": {"n": 24641, "mfeE_med": 2.05, "exc_med": 0.55, "exc0.5": 53.6, "exc1.0": 26.9, "exc1.5": 13.4, "exc2.0": 6.9}, "1번눌림": {"n": 14824, "mfeE_med": 1.12, "exc_med": 0.62, "exc0.5": 58.9, "exc1.0": 23.7, "exc1.5": 12.4, "exc2.0": 6.4}, "2번눌림": {"n": 9524, "mfeE_med": 0.48, "exc_med": 0.98, "exc0.5": 100.0, "exc1.0": 47.7, "exc1.5": 19.5, "exc2.0": 2.2}, "3번눌림": {"n": 5574, "mfeE_med": 0.42, "exc_med": 1.92, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 43.2}, "4번눌림": {"n": 2066, "mfeE_med": 0.44, "exc_med": 2.94, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 2012, "mfeE_med": 0.42, "exc_med": 3.42, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}, "5m": {"_ctx": {"n": 25880, "stop": 1282, "open": 1, "stop_pct": 5.0}, "바로출발": {"n": 10167, "mfeE_med": 2.04, "exc_med": 0.54, "exc0.5": 52.8, "exc1.0": 26.3, "exc1.5": 13.6, "exc2.0": 7.0}, "1번눌림": {"n": 6351, "mfeE_med": 1.09, "exc_med": 0.59, "exc0.5": 58.3, "exc1.0": 22.1, "exc1.5": 11.1, "exc2.0": 5.7}, "2번눌림": {"n": 4052, "mfeE_med": 0.5, "exc_med": 1.0, "exc0.5": 100.0, "exc1.0": 49.7, "exc1.5": 19.3, "exc2.0": 1.9}, "3번눌림": {"n": 2304, "mfeE_med": 0.44, "exc_med": 1.94, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 45.2}, "4번눌림": {"n": 878, "mfeE_med": 0.43, "exc_med": 2.93, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 845, "mfeE_med": 0.43, "exc_med": 3.43, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}, "10m": {"_ctx": {"n": 13521, "stop": 648, "open": 1, "stop_pct": 4.8}, "바로출발": {"n": 5426, "mfeE_med": 2.03, "exc_med": 0.53, "exc0.5": 52.2, "exc1.0": 25.8, "exc1.5": 13.4, "exc2.0": 6.8}, "1번눌림": {"n": 3207, "mfeE_med": 1.12, "exc_med": 0.62, "exc0.5": 60.4, "exc1.0": 23.4, "exc1.5": 11.4, "exc2.0": 6.1}, "2번눌림": {"n": 2121, "mfeE_med": 0.5, "exc_med": 1.0, "exc0.5": 100.0, "exc1.0": 49.8, "exc1.5": 19.5, "exc2.0": 1.9}, "3번눌림": {"n": 1230, "mfeE_med": 0.44, "exc_med": 1.94, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 44.7}, "4번눌림": {"n": 433, "mfeE_med": 0.45, "exc_med": 2.95, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}, "6차(풀)": {"n": 455, "mfeE_med": 0.44, "exc_med": 3.44, "exc0.5": 100.0, "exc1.0": 100.0, "exc1.5": 100.0, "exc2.0": 100.0}}}}};const STG=["바로출발","1번눌림","2번눌림","3번눌림","4번눌림","6차(풀)"];const EXC=[0.5, 1.0, 1.5, 2.0];
+let base='KTR',ver='v1',tf='10m';
+function mk(host,opts,cur,cb){const h=document.getElementById(host);h.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='btn'+(o[0]===cur()?' on':'');b.textContent=o[1];b.onclick=()=>{cb(o[0]);render()};h.appendChild(b)})}
+function render(){
+ mk('basesel',[['KTR','KTR'],['BREAKOUT','돌파봉']],()=>base,v=>base=v);
+ mk('versel',[['v1','v1 즉시'],['v2','v2 풀백']],()=>ver,v=>ver=v);
+ mk('tfsel',[['2m','2분'],['5m','5분'],['10m','10분']],()=>tf,v=>tf=v);
+ const dd=D[base][ver][tf];const unit=base==='KTR'?'KTR':'돌파봉';
+ let h=`<tr><th>이긴 단계</th><th>건수</th><th>진입가기준<br>최대상승(${unit})</th><th>익절선<br>초과분(중앙)</th>`
+   +EXC.map(e=>`<th class=hi>초과≥${e.toFixed(1)}</th>`).join('')+'</tr>';
+ STG.forEach(st=>{const d=dd[st];
+  if(!d||!d.n){h+=`<tr><td>${st}</td><td colspan=9 style="text-align:left;color:#7e8aa0">표본 없음</td></tr>`;return;}
+  h+=`<tr><td>${st}</td><td>${d.n.toLocaleString()}</td><td>+${d.mfeE_med}</td><td>+${d.exc_med}</td>`
+   +EXC.map(e=>`<td class=hi>${d['exc'+e.toFixed(1)]}%</td>`).join('')+'</tr>';});
+ document.getElementById('tbl').innerHTML=h;
+ const c=dd._ctx;
+ document.getElementById('ctx').innerHTML=`[${base}] 전체 진입 ${c.n.toLocaleString()}건 중 <b>손절(-5) ${c.stop.toLocaleString()}건(${c.stop_pct}%)</b>, 미청산 ${c.open.toLocaleString()}건은 제외(이긴 것만).`;
+}
+render();
+</script>
+</div></body></html>
