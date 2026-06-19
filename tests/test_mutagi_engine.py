@@ -40,8 +40,31 @@ def test_compute_indicators_shapes():
     assert ind["up"][2] is not None
     assert len(ind["cross"]) == 10
 
+def _ind_for_trigger():
+    bars = [
+        M.Bar(0, 10, 11, 9, 10),
+        M.Bar(300, 10, 11, 9, 10),
+        M.Bar(600, 10, 11, 9, 10),
+        M.Bar(900, 10, 11, 8, 10),   # low=8, high=11
+        M.Bar(1200, 10, 11, 9, 10),
+    ]
+    ind = {
+        "sma_fast": [None] * 5, "sma_slow": [None, None, None, 8.5, 8.5],
+        "up": [None, None, None, 10.5, 10.5], "lo": [None, None, None, 8.2, 8.2],
+        "cross": [None] * 5,
+    }
+    return bars, ind
+
+def test_is_trigger():
+    bars, ind = _ind_for_trigger()
+    assert M.is_trigger("S1", "LONG", 3, bars, ind) is True    # low 8 <= lo 8.2
+    assert M.is_trigger("S1", "SHORT", 3, bars, ind) is True   # high 11 >= up 10.5
+    assert M.is_trigger("S2", "LONG", 3, bars, ind) is True    # always
+    assert M.is_trigger("S3", "LONG", 3, bars, ind) is True    # low 8 <= sma_slow 8.5
+    assert M.is_trigger("S3", "LONG", 2, bars, ind) is False   # sma_slow None
+
 TESTS = [test_sma_basic, test_bollinger_population_std, test_detect_cross,
-         test_compute_indicators_shapes]
+         test_compute_indicators_shapes, test_is_trigger]
 
 def run():
     failed = 0

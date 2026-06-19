@@ -61,3 +61,18 @@ def compute_indicators(bars, sma_fast=20, sma_slow=120, bb_len=4, bb_mult=4.0):
     up, lo = bollinger(opens, bb_len, bb_mult)
     cross = detect_cross(f, s)
     return {"sma_fast": f, "sma_slow": s, "up": up, "lo": lo, "cross": cross}
+
+
+def is_trigger(strategy, direction, i, bars, ind):
+    if strategy == "S2":
+        return True
+    b = bars[i]
+    if strategy == "S1":
+        band = ind["lo"][i] if direction == "LONG" else ind["up"][i]
+    elif strategy == "S3":
+        band = ind["sma_slow"][i]
+    else:
+        raise ValueError("unknown strategy: %s" % strategy)
+    if band is None:
+        return False
+    return b.low <= band if direction == "LONG" else b.high >= band
