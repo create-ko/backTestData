@@ -120,6 +120,27 @@ TESTS = [test_sma_basic, test_bollinger_population_std, test_detect_cross,
          test_generate_trades_s2_long_basic, test_generate_trades_short_and_open_at_end,
          test_generate_trades_one_entry_per_regime]
 
+def test_profit_factor_and_mdd():
+    assert abs(M.profit_factor([3.0, -1.0, 2.0]) - 5.0) < 1e-9   # 5 / 1
+    assert M.profit_factor([1.0, 2.0]) == float("inf")
+    assert abs(M.max_drawdown([2.0, -5.0, 1.0]) - 5.0) < 1e-9    # peak 2 -> -3, dd=5
+
+def test_aggregate_by_year():
+    trades = [
+        {"year": 2011, "points_net": 2.0, "pct_net": 1.0, "hold_bars": 4, "open_at_end": False},
+        {"year": 2011, "points_net": -1.0, "pct_net": -0.5, "hold_bars": 2, "open_at_end": False},
+        {"year": 2012, "points_net": 3.0, "pct_net": 1.5, "hold_bars": 6, "open_at_end": True},
+    ]
+    agg = M.aggregate_by_year(trades)
+    assert agg[2011]["trades"] == 2
+    assert abs(agg[2011]["win_rate"] - 50.0) < 1e-9
+    assert abs(agg[2011]["total_points"] - 1.0) < 1e-9
+    assert abs(agg[2011]["pf"] - 2.0) < 1e-9
+    assert agg[2012]["trades"] == 1
+    assert "ALL" in agg and agg["ALL"]["trades"] == 3
+
+TESTS += [test_profit_factor_and_mdd, test_aggregate_by_year]
+
 def run():
     failed = 0
     for t in TESTS:

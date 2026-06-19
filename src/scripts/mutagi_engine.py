@@ -129,3 +129,52 @@ def generate_trades(bars, ind, strategy, direction, cost=0.4, tf=""):
     if position is not None:
         _close(position, n - 1, closes[n - 1], True)
     return trades
+
+
+def profit_factor(points):
+    gains = sum(p for p in points if p > 0)
+    losses = sum(-p for p in points if p < 0)
+    if losses == 0:
+        return float("inf") if gains > 0 else 0.0
+    return gains / losses
+
+
+def max_drawdown(points):
+    """누적합 곡선의 최대낙폭(양수)."""
+    cum = 0.0; peak = 0.0; mdd = 0.0
+    for p in points:
+        cum += p
+        if cum > peak:
+            peak = cum
+        dd = peak - cum
+        if dd > mdd:
+            mdd = dd
+    return mdd
+
+
+def aggregate_by_year(trades):
+    from collections import defaultdict
+    buckets = defaultdict(list)
+    for t in trades:
+        buckets[t["year"]].append(t)
+        buckets["ALL"].append(t)
+
+    def summarize(ts):
+        pts = [t["points_net"] for t in ts]
+        pcts = [t["pct_net"] for t in ts]
+        holds = [t["hold_bars"] for t in ts]
+        wins = sum(1 for p in pts if p > 0)
+        nt = len(ts)
+        return {
+            "trades": nt,
+            "win_rate": 100.0 * wins / nt if nt else 0.0,
+            "total_points": sum(pts),
+            "avg_points": sum(pts) / nt if nt else 0.0,
+            "total_pct": sum(pcts),
+            "avg_pct": sum(pcts) / nt if nt else 0.0,
+            "pf": profit_factor(pts),
+            "mdd": max_drawdown(pts),
+            "avg_hold": sum(holds) / nt if nt else 0.0,
+        }
+
+    return {k: summarize(v) for k, v in buckets.items()}
