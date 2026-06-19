@@ -2,8 +2,12 @@
 """42 — 보유시간 분포 + 무거래 빈도 + 정체(stuck) 확인. 2m·5m·10m 전부 × v1/v2.
 순차+시간(08~24)·꼬리필터없음. 37일 무거래연속이 '한 포지션 장기보유'인지 확인.
 보유시간은 epoch차(실시간, 주말갭 반영). 최장보유 vs 최장무거래연속 비교."""
-import csv, math, time
-MULT=[0,1,2,3,4,4.5]; L=[1,1,2,2,3,4]; TP=1.5; B6X=1.0; STOPM=5.0; START_H=8; YRS=6.46
+import csv, math, time, json
+MULT=[0,1,2,3,4,4.5]; L=[1,1,2,2,3,4]; TP=1.5; B6X=1.0; STOPM=5.0; START_H=8
+def data_span_years(bars):
+    e0=bars[0][0]; e1=bars[-1][0]
+    if e1>1e11: e0/=1000; e1/=1000
+    return (e1-e0)/(365.25*86400)
 
 def load(f):
     bars=[]; idx={}
@@ -91,8 +95,11 @@ def seq_v2(tf,bars,idx,off):
                         pending=None
     return out
 
+HOLD={}
 for tf in ["2m","5m","10m"]:
     bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv"); off=calib(tf)
+    YRS=data_span_years(bars)
+    HOLD[tf]={}
     mdays=sorted(set(kdate(b[0],off) for b in bars)); nday=len(mdays)
     print(f"\n{'='*84}\n### {tf}  (시장일 {nday}, ~{nday/YRS:.0f}/년)")
     print(f"{'버전':>4}{'거래':>6}{'보유중앙h':>10}{'보유평균h':>10}{'95%h':>8}{'최대보유':>10}{'무거래일%':>9}{'최장무거래':>11}")
@@ -112,3 +119,6 @@ for tf in ["2m","5m","10m"]:
             else: streak=0
         mxd=mx/24.0
         print(f"{ver:>4}{n:>6}{med:>9.1f}h{avg:>9.1f}h{p95:>7.1f}h{mxd:>8.1f}일{100*d0/nday:>8.1f}%{mxstreak:>9}일")
+        HOLD[tf][ver]=[round(med,1),round(avg,1),round(p95,1),round(mxd,1)]
+with open("holding_times.json","w",encoding="utf-8") as f: json.dump(HOLD,f,ensure_ascii=False)
+print("\n→ holding_times.json")

@@ -5,11 +5,19 @@
 import csv, math, json
 MULT=[0,1,2,3,4,4.5]; L=[1,1,2,2,3,4]; TP=1.5; B6X=1.0; STOPM=5.0
 SUM_L=sum(L); STOP_R=abs(sum(L[i]*(MULT[i]-STOPM) for i in range(6)))
-SPREAD=0.30; RISK=0.02; YRS=6.46
+SPREAD=0.30; RISK=0.02
 START_H=8  # 08:00~23:59 진입 허용 (hour>=8)
-YEARS=["2020","2021","2022","2023","2024","2025","2026"]
-OVCNT={"2m":{"v1":31303,"v2":22673},"5m":{"v1":13016,"v2":9310},"10m":{"v1":6873,"v2":4853}}
-SEQCNT={"2m":{"v1":13684,"v2":10563},"5m":{"v1":6129,"v2":4642},"10m":{"v1":3655,"v2":2763}}
+def derive_years():
+    ys=set()
+    with open("signals_10m_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
+        rd=csv.reader(fp); next(rd)
+        for s in rd: ys.add(s[1][:4])
+    return sorted(ys)
+def data_span_years(bars):
+    e0=bars[0][0]; e1=bars[-1][0]
+    if e1>1e11: e0/=1000; e1/=1000
+    return (e1-e0)/(365.25*86400)
+YEARS=derive_years()  # 데이터에서 자동 도출
 
 def load(f):
     bars=[]; idx={}
@@ -66,7 +74,7 @@ def trade_R(maxF,kind):
     if kind=="B6":   return pnl_b6()/STOP_R, SUM_L
     return pnl_tps(maxF)/STOP_R, sum(L[:maxF])
 
-def seq_v1(tf,bars,idx,off):
+def seq_v1(tf,bars,idx,off,apply_time=True):
     sigs=[]
     with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
@@ -80,12 +88,12 @@ def seq_v1(tf,bars,idx,off):
     for bi,a,d,k in sigs:
         if bi<=busy: continue
         eb=bi+1
-        if khour(bars[eb][0],off)<START_H: continue   # 시간 필터
+        if apply_time and khour(bars[eb][0],off)<START_H: continue   # 시간 필터
         ex,mf,kind=sim(bars,eb,a,d,k)
         if kind in ("TPs","B6","STOP"):
             yr=str(bars[eb][0]); out.append((mf,kind,k,eb,ex)); busy=ex
     return out
-def seq_v2(tf,bars,idx,off):
+def seq_v2(tf,bars,idx,off,apply_time=True):
     u2,l2=boll([b[1] for b in bars],4,4.0); brk={}
     with open(f"signals_{tf}_2010-01-01_2026-06-16.csv",encoding="utf-8-sig") as fp:
         rd=csv.reader(fp); next(rd)
@@ -103,7 +111,7 @@ def seq_v2(tf,bars,idx,off):
                 if eb<len(bars):
                     k=float(ps[8])
                     if k>0:
-                        if khour(bars[eb][0],off)>=START_H:   # 시간 필터
+                        if (not apply_time) or khour(bars[eb][0],off)>=START_H:   # 시간 필터
                             ex,mf,kind=sim(bars,eb,bars[eb][1],pdir,k)
                             if kind in ("TPs","B6","STOP"): out.append((mf,kind,k,eb,ex)); busy=ex
                         pending=None
@@ -129,8 +137,11 @@ print(f"# 순차+시간필터(KST {START_H}:00~24:00 진입) / 후방/TP1.5/6차
 for tf in ["2m","5m","10m"]:
     bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
     off=calib_offset(tf,bars,idx)
+    YRS=data_span_years(bars)   # 데이터 기간(년)에서 자동 산출
     DATA[tf]={}
     JOBS={"v1":seq_v1(tf,bars,idx,off),"v2":seq_v2(tf,bars,idx,off)}
+    SQ={"v1":len(seq_v1(tf,bars,idx,off,apply_time=False)),
+        "v2":len(seq_v2(tf,bars,idx,off,apply_time=False))}  # 순차만(시간필터 전)
     for ver in ["v1","v2"]:
         tr=JOBS[ver]; n=len(tr)
         netR=[]; yrs=[]; wins=0
@@ -151,14 +162,14 @@ for tf in ["2m","5m","10m"]:
             rN=cum[j1]-cum[j0]; ret=100*(eq[j1]/eq[j0]-1); md=maxdd(eq[j0:j1+1])
             rows.append((yr,len(js),round(rN,1),round(ret,1),round(md,1)))
         totR=cum[-1]; totret=100*(eq[-1]-1); cagr=100*(eq[-1]**(1/YRS)-1) if eq[-1]>0 else -100; mdd=maxdd(eq)
-        ov=OVCNT[tf][ver]; sq=SEQCNT[tf][ver]
-        print(f"{'='*88}\n=== {tf} {ver}  진입 {n}건  (겹침 {ov} → 순차 {sq} → +시간 {n}, 전체대비 {100*n/ov:.0f}%, 승률 {100*wins/n:.1f}%) ===")
+        sq=SQ[ver]
+        print(f"{'='*88}\n=== {tf} {ver}  진입 {n}건  (순차 {sq} → +시간 {n}, 시간컷후 {100*n/sq:.0f}%, 승률 {100*wins/n:.1f}%) [기간 {YRS:.2f}년] ===")
         print(f"{'연도':>6}{'건수':>6}{'net R':>9}{'수익%':>9}{'MDD%':>8}")
         for yr,c,rN,ret,md in rows:
             if c==0: print(f"{yr:>6}{0:>6}"); continue
             print(f"{yr:>6}{c:>6}{rN:>+9.1f}{ret:>+8.1f}%{md:>7.1f}%")
         print(f"{'전체':>6}{n:>6}{totR:>+9.1f}  복리 net {totret:+.0f}% / CAGR {cagr:+.1f}% / 최대MDD {mdd:.1f}%\n")
-        DATA[tf][ver]={"n":n,"ov":ov,"sq":sq,"winrate":round(100*wins/n,1),"rows":rows,
+        DATA[tf][ver]={"n":n,"sq":sq,"winrate":round(100*wins/n,1),"rows":rows,"years":YEARS,"yrs":round(YRS,2),
                        "totR":round(totR,1),"totret":round(totret,0),"cagr":round(cagr,1),"mdd":round(mdd,1)}
 with open("seq_hours_returns.json","w",encoding="utf-8") as f: json.dump(DATA,f,ensure_ascii=False)
 print("→ seq_hours_returns.json")

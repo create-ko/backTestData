@@ -227,7 +227,7 @@ document.getElementById('next').onclick=()=>{fi=(fi+1)%D.strats[stf].length;rend
 sel.onchange=()=>{fi=+sel.value;render()};
 fillSel();render();
 </script></body></html>"""
-with open("fail_charts.html","w",encoding="utf-8") as f:
+with open("../result/fail_charts.html","w",encoding="utf-8") as f:
     f.write(html.replace("__DATA__",json.dumps(DATA,ensure_ascii=False)))
 import os
-print(f"→ fail_charts.html ({os.path.getsize('fail_charts.html')/1e6:.1f}MB)")
+print(f"→ ../result/fail_charts.html ({os.path.getsize('../result/fail_charts.html')/1e6:.1f}MB)")

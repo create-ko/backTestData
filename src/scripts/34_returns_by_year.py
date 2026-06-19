@@ -261,6 +261,6 @@ function table(d){
 function render(){const d=DATA[tf][ver];ctrls();kpi(d);draw(d);table(d);}
 ctrls();render();
 </script></body></html>"""
-out="returns_by_year.html"
+out="../result/returns_by_year.html"
 with open(out,"w",encoding="utf-8") as f: f.write(HTML.replace("__DATA__",json.dumps(DATA)))
 print(f"→ {out}")

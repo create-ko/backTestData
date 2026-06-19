@@ -151,7 +151,7 @@ render();
 </body>
 </html>"""
 
-out_path = os.path.join(base_dir, "baro_mfe_chart.html")
+out_path = os.path.join("..", "result", "baro_mfe_chart.html")
 with open(out_path, "w", encoding="utf-8") as f:
     f.write(HTML)
 print(f"\n→ {out_path}")

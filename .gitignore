@@ -8,6 +8,9 @@
 **/.cache/
 **/parts/
 
+# 분석 중간 산출물 JSON (data/에서 재생성 가능; HTML 리포트는 result/에 커밋)
+/data/*.json
+
 # 참고/3rd-party 문서
 *.pdf
 

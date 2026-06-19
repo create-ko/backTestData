@@ -6,7 +6,11 @@ import csv, math, json
 MULT=[0,1,2,3,4,4.5]; L=[1,1,2,2,3,4]; TP=1.5; B6X=1.0; STOPM=5.0
 SUM_L=sum(L); STOP_R=abs(sum(L[i]*(MULT[i]-STOPM) for i in range(6)))  # 24
 SPREADS=[0.10,0.20,0.30,0.50,0.70,1.00]
-RISK=0.02; YRS=6.46
+RISK=0.02
+def data_span_years(bars):
+    e0=bars[0][0]; e1=bars[-1][0]
+    if e1>1e11: e0/=1000; e1/=1000
+    return (e1-e0)/(365.25*86400)
 
 def load(f):
     bars=[]; idx={}
@@ -92,6 +96,7 @@ DATA={}
 print(f"# 확정설정 후방 {'·'.join(map(str,L))}/TP1.5/6차 - 비용(라운드턴$) 민감도\n")
 for tf in ["2m","5m","10m"]:
     bars,idx=load(f"xauusd_{tf}_2010-01-01_2026-06-16.csv")
+    YRS=data_span_years(bars)
     JOBS={"v1":v1_jobs(tf,bars,idx),"v2":v2_jobs(tf,bars,idx)}
     DATA[tf]={}
     print(f"{'='*88}\n=== {tf} ===")
@@ -172,5 +177,9 @@ for(const tf in DATA)for(const v in DATA[tf]){const d=DATA[tf][v];
 document.getElementById('tbl').innerHTML=h;
 draw();
 </script></body></html>"""
-with open("cost_sensitivity.html","w",encoding="utf-8") as f: f.write(HTML.replace("__DATA__",json.dumps(DATA)))
-print("→ cost_sensitivity.html")
+with open("../result/cost_sensitivity.html","w",encoding="utf-8") as f: f.write(HTML.replace("__DATA__",json.dumps(DATA)))
+print("→ ../result/cost_sensitivity.html")
+# 손익분기 요약 JSON (45 리포트용)
+BE={tf:{ver:DATA[tf][ver]["be"] for ver in DATA[tf]} for tf in DATA}
+with open("cost_breakeven.json","w",encoding="utf-8") as f: json.dump(BE,f,ensure_ascii=False)
+print("→ cost_breakeven.json")
