@@ -11,7 +11,15 @@ def test_sma_basic():
     assert abs(out[3] - 3.0) < 1e-9
     assert abs(out[4] - 4.0) < 1e-9
 
-TESTS = [test_sma_basic]
+def test_bollinger_population_std():
+    # opens = [10,12,14,16], length=4, mult=2
+    # mean=13, var=(9+1+1+9)/4=5, std=sqrt(5)
+    up, lo = M.bollinger([10.0, 12.0, 14.0, 16.0], 4, 2.0)
+    assert up[0] is None and up[2] is None
+    assert abs(up[3] - (13.0 + 2 * math.sqrt(5))) < 1e-9
+    assert abs(lo[3] - (13.0 - 2 * math.sqrt(5))) < 1e-9
+
+TESTS = [test_sma_basic, test_bollinger_population_std]
 
 def run():
     failed = 0

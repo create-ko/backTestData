@@ -18,3 +18,21 @@ def sma(values, length):
         if i >= length - 1:
             out[i] = s / length
     return out
+
+
+def bollinger(values, length, mult):
+    """모표준편차(/N). returns (upper, lower) - 각 list[Optional[float]]."""
+    n = len(values); up = [None] * n; lo = [None] * n
+    s = ss = 0.0
+    for i in range(n):
+        v = values[i]; s += v; ss += v * v
+        if i >= length:
+            r = values[i - length]; s -= r; ss -= r * r
+        if i >= length - 1:
+            mean = s / length
+            var = ss / length - mean * mean
+            if var < 0:
+                var = 0.0
+            dev = mult * math.sqrt(var)
+            up[i] = mean + dev; lo[i] = mean - dev
+    return up, lo
