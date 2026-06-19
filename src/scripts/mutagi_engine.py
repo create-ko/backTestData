@@ -36,3 +36,18 @@ def bollinger(values, length, mult):
             dev = mult * math.sqrt(var)
             up[i] = mean + dev; lo[i] = mean - dev
     return up, lo
+
+
+def detect_cross(fast, slow):
+    """각 i에 'golden'/'dead'/None. 직전/현재 둘 다 값이 있어야 판정."""
+    n = len(fast); out = [None] * n
+    for i in range(1, n):
+        a0, a1 = fast[i - 1], fast[i]
+        b0, b1 = slow[i - 1], slow[i]
+        if None in (a0, a1, b0, b1):
+            continue
+        if a1 > b1 and a0 <= b0:
+            out[i] = "golden"
+        elif a1 < b1 and a0 >= b0:
+            out[i] = "dead"
+    return out

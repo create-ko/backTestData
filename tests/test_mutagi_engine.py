@@ -19,7 +19,17 @@ def test_bollinger_population_std():
     assert abs(up[3] - (13.0 + 2 * math.sqrt(5))) < 1e-9
     assert abs(lo[3] - (13.0 - 2 * math.sqrt(5))) < 1e-9
 
-TESTS = [test_sma_basic, test_bollinger_population_std]
+def test_detect_cross():
+    fast = [None, 1.0, 3.0, 2.0, 0.5]
+    slow = [None, 2.0, 2.0, 2.0, 2.0]
+    # i=2: 3>2 & prev 1<=2 -> golden; i=3: 2<2? no -> None; i=4: 0.5<2 & prev 2>=2 -> dead
+    cr = M.detect_cross(fast, slow)
+    assert cr[1] is None
+    assert cr[2] == "golden"
+    assert cr[3] is None
+    assert cr[4] == "dead"
+
+TESTS = [test_sma_basic, test_bollinger_population_std, test_detect_cross]
 
 def run():
     failed = 0
