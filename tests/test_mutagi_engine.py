@@ -63,8 +63,62 @@ def test_is_trigger():
     assert M.is_trigger("S3", "LONG", 3, bars, ind) is True    # low 8 <= sma_slow 8.5
     assert M.is_trigger("S3", "LONG", 2, bars, ind) is False   # sma_slow None
 
+def _bars(prices_ohlc, step=300):
+    return [M.Bar(i * step, o, h, l, c) for i, (o, h, l, c) in enumerate(prices_ohlc)]
+
+def test_generate_trades_s2_long_basic():
+    bars = _bars([(100, 100, 100, 100)] * 6)
+    bars[2] = M.Bar(600, 110, 110, 110, 110)
+    bars[5] = M.Bar(1500, 130, 130, 130, 130)
+    ind = {
+        "sma_fast": [None] * 6, "sma_slow": [None] * 6,
+        "up": [None] * 6, "lo": [None] * 6,
+        "cross": [None, "golden", None, None, "dead", None],
+    }
+    tr = M.generate_trades(bars, ind, "S2", "LONG", cost=0.4, tf="5m")
+    assert len(tr) == 1
+    t = tr[0]
+    assert abs(t["entry_price"] - 110) < 1e-9
+    assert abs(t["exit_price"] - 130) < 1e-9
+    assert abs(t["points_gross"] - 20) < 1e-9
+    assert abs(t["points_net"] - 19.6) < 1e-9
+    assert t["hold_bars"] == 3
+    assert t["direction"] == "LONG" and t["strategy"] == "S2" and t["tf"] == "5m"
+    assert t["open_at_end"] is False
+
+def test_generate_trades_short_and_open_at_end():
+    bars = _bars([(100, 100, 100, 100)] * 4)
+    bars[2] = M.Bar(600, 120, 120, 120, 120)
+    bars[3] = M.Bar(900, 90, 90, 90, 90)
+    ind = {
+        "sma_fast": [None] * 4, "sma_slow": [None] * 4,
+        "up": [None] * 4, "lo": [None] * 4,
+        "cross": [None, "dead", None, None],
+    }
+    tr = M.generate_trades(bars, ind, "S2", "SHORT", cost=0.4, tf="5m")
+    assert len(tr) == 1
+    t = tr[0]
+    assert abs(t["entry_price"] - 120) < 1e-9
+    assert abs(t["exit_price"] - 90) < 1e-9
+    assert abs(t["points_gross"] - 30) < 1e-9   # short: entry - exit
+    assert t["open_at_end"] is True
+
+def test_generate_trades_one_entry_per_regime():
+    bars = _bars([(100, 100, 100, 100)] * 6)
+    ind = {
+        "sma_fast": [None] * 6, "sma_slow": [None] * 6,
+        "up": [None] * 6,
+        "lo": [None, 100, 100, 100, None, None],   # low(100) <= lo(100) at i=1,2,3
+        "cross": [None, "golden", None, None, "dead", None],
+    }
+    tr = M.generate_trades(bars, ind, "S1", "LONG", cost=0.4, tf="5m")
+    assert len(tr) == 1
+    assert tr[0]["hold_bars"] == 3   # trigger i=1 -> entry open[2]; dead i=4 -> exit open[5]
+
 TESTS = [test_sma_basic, test_bollinger_population_std, test_detect_cross,
-         test_compute_indicators_shapes, test_is_trigger]
+         test_compute_indicators_shapes, test_is_trigger,
+         test_generate_trades_s2_long_basic, test_generate_trades_short_and_open_at_end,
+         test_generate_trades_one_entry_per_regime]
 
 def run():
     failed = 0

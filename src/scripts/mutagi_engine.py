@@ -76,3 +76,56 @@ def is_trigger(strategy, direction, i, bars, ind):
     if band is None:
         return False
     return b.low <= band if direction == "LONG" else b.high >= band
+
+
+def generate_trades(bars, ind, strategy, direction, cost=0.4, tf=""):
+    n = len(bars)
+    opens = [b.open for b in bars]
+    closes = [b.close for b in bars]
+    cross = ind["cross"]
+    entry_cross = "golden" if direction == "LONG" else "dead"
+    exit_cross = "dead" if direction == "LONG" else "golden"
+    trades = []
+    position = None   # dict: entry_idx, entry_price
+    armed = False
+
+    def _close(entry, exit_idx, exit_price, open_at_end):
+        ep = entry["entry_price"]
+        if direction == "LONG":
+            gross = exit_price - ep
+        else:
+            gross = ep - exit_price
+        net = gross - cost
+        edt = datetime.fromtimestamp(bars[entry["entry_idx"]].epoch, KST)
+        xdt = datetime.fromtimestamp(bars[exit_idx].epoch, KST)
+        trades.append({
+            "strategy": strategy, "direction": direction, "tf": tf,
+            "entry_dt_kst": edt.strftime("%Y-%m-%d %H:%M"),
+            "entry_epoch": bars[entry["entry_idx"]].epoch,
+            "exit_dt_kst": xdt.strftime("%Y-%m-%d %H:%M"),
+            "entry_price": ep, "exit_price": exit_price,
+            "points_gross": gross, "points_net": net,
+            "pct_gross": gross / ep * 100.0, "pct_net": net / ep * 100.0,
+            "hold_bars": exit_idx - entry["entry_idx"],
+            "year": edt.year, "open_at_end": open_at_end,
+        })
+
+    for i in range(n):
+        if position is not None and cross[i] == exit_cross:
+            if i + 1 < n:
+                _close(position, i + 1, opens[i + 1], False)
+            else:
+                _close(position, i, closes[i], True)
+            position = None; armed = False
+            continue
+        if cross[i] == exit_cross:
+            armed = False
+        if cross[i] == entry_cross:
+            armed = True
+        if armed and position is None and i + 1 < n:
+            if is_trigger(strategy, direction, i, bars, ind):
+                position = {"entry_idx": i + 1, "entry_price": opens[i + 1]}
+                armed = False
+    if position is not None:
+        _close(position, n - 1, closes[n - 1], True)
+    return trades
