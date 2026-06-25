@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang=ko><head><meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>더캔지추 1H 방향게이트 리포트 [1분봉 정직]</title>
+<style>
+*{box-sizing:border-box}body{font-family:'Malgun Gothic','Segoe UI',sans-serif;background:#0f1320;color:#dfe6f0;margin:0;padding:20px;line-height:1.6}
+h1{color:#4fc3f7;font-size:1.4em;margin:0 0 4px}h2{color:#7fd4ff;font-size:1.05em;margin:20px 0 6px;border-left:3px solid #4fc3f7;padding-left:8px}
+.sub{color:#8aa;font-size:.85em;margin-bottom:14px}
+table{border-collapse:collapse;width:100%;max-width:880px;font-size:.86em;margin:8px 0}
+th,td{border:1px solid #243049;padding:5px 9px;text-align:right}th{background:#172033;color:#bcd}
+td:first-child,td:nth-child(2){text-align:left}
+tr.sec td{border-top:2px solid #3a4a6a}
+.hl{background:#16301c}
+.box{background:#141b2e;border:1px solid #243049;border-radius:8px;padding:12px 16px;max-width:880px;margin:10px 0}
+.good{color:#8fdc4e}.warn{color:#e7c84b}.bad{color:#ff6b6b}
+ul{margin:6px 0}li{margin:3px 0}code{background:#1c2640;padding:1px 5px;border-radius:4px;color:#9cf}
+</style></head><body>
+<h1>더캔이지추격깨 — 1시간봉 방향게이트 검증</h1>
+<div class=sub>골드 2010-2026 (16.45년) · 1분봉 정직 해소 · 후방랏/TP1.5/6차/비용$0.30/리스크2%/KST08~24 진입/순차 · base=KTR</div>
+<div class=box>
+<b>방법</b>: 매 1H 마감마다 4요소 가중투표로 방향 우위 산출(+ =LONG). 진행 중 1H봉 미사용(미래참조 차단).
+<ul>
+<li><b>더</b>(w3): 1H close vs BB(20,2) — 하단근접 매수 / 상단근접 매도 (수축원비=과매도)</li>
+<li><b>지</b>(w3): 직전 확정 스윙 S/R 레벨 근접 — 지지 매수 / 저항 매도 <span class=warn>(휴리스틱 proxy)</span></li>
+<li><b>캔</b>(w2): 1H 캔들 — 망치 매수 / 역망치 매도 / 도지 중립</li>
+<li><b>추</b>(w2): 1H 20MA 기울기 + 4H 20MA 기울기 (연속방향)</li>
+</ul>
+net=합, strength=|net|. 게이트: 하위봉 돌파신호 방향이 bias와 <b>일치</b>할 때만 진입(strength 임계). <b>반대</b>=통제(방향 무효성 검정).
+</div>
+
+<h2>결과 (초록=본전권 CAGR>=-0.5%)</h2>
+<table>
+<tr><th>분봉·전략</th><th>필터</th><th>진입</th><th>승률</th><th>net R</th><th>CAGR</th><th>MDD</th></tr>
+<tr class=sec><td rowspan=5>10m v2</td><td style='color:#9fb'>무필터</td><td>6441</td><td>90.7%</td><td>-136.9</td><td style='color:#ff6b6b'>-15.8%</td><td>94.5%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=3</td><td class=hl>397</td><td class=hl>89.4%</td><td class=hl>-13.0</td><td class=hl style='color:#e7c84b'>-1.6%</td><td class=hl>24.3%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=3</td><td>2106</td><td>89.9%</td><td>-49.6</td><td style='color:#ff6b6b'>-6.0%</td><td>65.5%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=5</td><td class=hl>131</td><td class=hl>91.6%</td><td class=hl>-0.8</td><td class=hl style='color:#8fdc4e'>-0.1%</td><td class=hl>7.8%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=5</td><td>941</td><td>89.1%</td><td>-30.9</td><td style='color:#e7c84b'>-3.8%</td><td>48.3%</td></tr><tr class=sec><td rowspan=5>10m v1</td><td style='color:#9fb'>무필터</td><td>9025</td><td>90.0%</td><td>-270.3</td><td style='color:#ff6b6b'>-28.7%</td><td>99.6%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=3</td><td>1003</td><td>89.1%</td><td>-34.5</td><td style='color:#e7c84b'>-4.2%</td><td>53.1%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=3</td><td>2048</td><td>90.6%</td><td>-53.4</td><td style='color:#ff6b6b'>-6.5%</td><td>67.7%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=5</td><td>401</td><td>90.5%</td><td>-10.0</td><td style='color:#e7c84b'>-1.2%</td><td>22.7%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=5</td><td>938</td><td>90.8%</td><td>-17.6</td><td style='color:#e7c84b'>-2.2%</td><td>33.5%</td></tr><tr class=sec><td rowspan=5>5m v2</td><td style='color:#9fb'>무필터</td><td>11252</td><td>90.9%</td><td>-311.5</td><td style='color:#ff6b6b'>-32.3%</td><td>99.8%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=3</td><td class=hl>1078</td><td class=hl>91.3%</td><td class=hl>-25.7</td><td class=hl style='color:#e7c84b'>-3.2%</td><td class=hl>43.9%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=3</td><td>3322</td><td>91.2%</td><td>-80.5</td><td style='color:#ff6b6b'>-9.6%</td><td>81.8%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=5</td><td class=hl>404</td><td class=hl>93.6%</td><td class=hl>-0.4</td><td class=hl style='color:#8fdc4e'>-0.1%</td><td class=hl>11.3%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=5</td><td>1499</td><td>90.8%</td><td>-49.3</td><td style='color:#ff6b6b'>-6.0%</td><td>65.4%</td></tr><tr class=sec><td rowspan=5>5m v1</td><td style='color:#9fb'>무필터</td><td>15279</td><td>90.4%</td><td>-521.7</td><td style='color:#ff6b6b'>-47.8%</td><td>100.0%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=3</td><td>2258</td><td>89.9%</td><td>-84.3</td><td style='color:#ff6b6b'>-10.0%</td><td>84.0%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=3</td><td>2917</td><td>91.2%</td><td>-85.6</td><td style='color:#ff6b6b'>-10.1%</td><td>83.8%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=5</td><td>965</td><td>89.6%</td><td>-37.9</td><td style='color:#e7c84b'>-4.6%</td><td>59.3%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=5</td><td>1284</td><td>90.1%</td><td>-50.4</td><td style='color:#ff6b6b'>-6.1%</td><td>66.2%</td></tr><tr class=sec><td rowspan=5>2m v2</td><td style='color:#9fb'>무필터</td><td>23960</td><td>91.6%</td><td>-855.3</td><td style='color:#ff6b6b'>-65.5%</td><td>100.0%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=3</td><td>3727</td><td>91.1%</td><td>-149.4</td><td style='color:#ff6b6b'>-16.9%</td><td>95.8%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=3</td><td>5259</td><td>92.7%</td><td>-137.2</td><td style='color:#ff6b6b'>-15.7%</td><td>94.9%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=5</td><td>1515</td><td>91.5%</td><td>-50.7</td><td style='color:#ff6b6b'>-6.1%</td><td>66.5%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=5</td><td>2285</td><td>92.1%</td><td>-69.8</td><td style='color:#ff6b6b'>-8.3%</td><td>76.8%</td></tr><tr class=sec><td rowspan=5>2m v1</td><td style='color:#9fb'>무필터</td><td>31479</td><td>91.0%</td><td>-1386.1</td><td style='color:#ff6b6b'>-82.1%</td><td>100.0%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=3</td><td>5355</td><td>90.9%</td><td>-226.3</td><td style='color:#ff6b6b'>-24.5%</td><td>99.1%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=3</td><td>5749</td><td>91.6%</td><td>-206.3</td><td style='color:#ff6b6b'>-22.6%</td><td>98.7%</td></tr><tr><td style='color:#7fd4ff'>일치 s>=5</td><td>2309</td><td>90.8%</td><td>-93.7</td><td style='color:#ff6b6b'>-11.0%</td><td>86.1%</td></tr><tr><td style='color:#c9a0ff'>반대 s>=5</td><td>2443</td><td>91.0%</td><td>-110.1</td><td style='color:#ff6b6b'>-12.8%</td><td>89.9%</td></tr>
+</table>
+<div class=sub>* 강조행(초록 배경) = 방향 우위가 확증된 셀 (10m/5m v2). 일치=하늘색, 반대=보라.</div>
+
+<div class=box>
+<b>판정</b>
+<ul>
+<li><span class=good>방향 우위는 진짜</span> — 단 <b>10m·5m의 v2(풀백)</b>에 집중. 10m v2 s>=5: 일치 <span class=good>-0.1%/MDD7.8%</span> vs 반대 <span class=bad>-3.8%/MDD48%</span>. 정렬표 방향이 실제로 먹힘.</li>
+<li><span class=warn>2m·5m v1의 개선은 방향이 아니라 "덜 거래(선택성)"</span> — 일치 ~= 반대라 우위 아님.</li>
+<li><span class=warn>그래도 최고가 본전(-0.1%)</span> — 게이트는 파산(MDD100%)을 본전+저MDD로 바꾸지만, $0.30 비용 넘는 흑자는 아직 아님.</li>
+<li>무필터 베이스(<code>66</code>) = 1분봉 정직 시 v1/v2 전부 -16~-82%/MDD~100% (look-ahead 제거 후 진실).</li>
+</ul>
+<b>남은 검증</b>: (1) 요소 분해(더/지/캔/추 단독) — 무엇이 방향 우위를 끄는지, (2) best 셀 비용 민감도(\$0.20/\$0.10이면 흑자?).
+</div>
+</body></html>
