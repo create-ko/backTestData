@@ -1,0 +1,214 @@
+{
+  "meta": {
+    "sessions": 7075,
+    "missing_range": 1367,
+    "invalid_range": 0,
+    "no_breakout": 21,
+    "no_retest": 416,
+    "bad_risk": 65,
+    "busy_session": 1808,
+    "low_body_breakouts": 3887,
+    "trades": 3398
+  },
+  "report": {
+    "overall": {
+      "trades": 3398,
+      "win_rate": 33.167,
+      "expectancy_points": -0.209,
+      "expectancy_r": -0.31,
+      "profit_factor": 0.943,
+      "cumulative_points": -709.258,
+      "max_drawdown_points": 1372.857,
+      "avg_win_points": 10.503,
+      "avg_loss_points": -5.527
+    },
+    "by_session": [
+      {
+        "trades": 1042,
+        "win_rate": 31.478,
+        "expectancy_points": -0.711,
+        "expectancy_r": -0.699,
+        "profit_factor": 0.72,
+        "cumulative_points": -740.641,
+        "max_drawdown_points": 847.713,
+        "avg_win_points": 5.793,
+        "avg_loss_points": -3.704,
+        "session": "Asia"
+      },
+      {
+        "trades": 1205,
+        "win_rate": 33.112,
+        "expectancy_points": -0.119,
+        "expectancy_r": -0.209,
+        "profit_factor": 0.963,
+        "cumulative_points": -143.671,
+        "max_drawdown_points": 593.304,
+        "avg_win_points": 9.341,
+        "avg_loss_points": -4.802,
+        "session": "Europe"
+      },
+      {
+        "trades": 1151,
+        "win_rate": 34.752,
+        "expectancy_points": 0.152,
+        "expectancy_r": -0.064,
+        "profit_factor": 1.029,
+        "cumulative_points": 175.054,
+        "max_drawdown_points": 329.116,
+        "avg_win_points": 15.526,
+        "avg_loss_points": -8.036,
+        "session": "NewYork"
+      }
+    ],
+    "by_direction": [
+      {
+        "trades": 1718,
+        "win_rate": 34.808,
+        "expectancy_points": -0.174,
+        "expectancy_r": -0.2,
+        "profit_factor": 0.953,
+        "cumulative_points": -298.544,
+        "max_drawdown_points": 440.712,
+        "avg_win_points": 10.113,
+        "avg_loss_points": -5.666,
+        "direction": "long"
+      },
+      {
+        "trades": 1680,
+        "win_rate": 31.488,
+        "expectancy_points": -0.244,
+        "expectancy_r": -0.423,
+        "profit_factor": 0.934,
+        "cumulative_points": -410.714,
+        "max_drawdown_points": 1241.129,
+        "avg_win_points": 10.945,
+        "avg_loss_points": -5.392,
+        "direction": "short"
+      }
+    ],
+    "by_year": [
+      {
+        "trades": 517,
+        "win_rate": 33.462,
+        "expectancy_points": -0.222,
+        "expectancy_r": -0.222,
+        "profit_factor": 0.926,
+        "cumulative_points": -114.599,
+        "max_drawdown_points": 330.714,
+        "avg_win_points": 8.337,
+        "avg_loss_points": -4.526,
+        "year": "2020"
+      },
+      {
+        "trades": 485,
+        "win_rate": 30.103,
+        "expectancy_points": -0.632,
+        "expectancy_r": -0.43,
+        "profit_factor": 0.752,
+        "cumulative_points": -306.474,
+        "max_drawdown_points": 382.9,
+        "avg_win_points": 6.364,
+        "avg_loss_points": -3.656,
+        "year": "2021"
+      },
+      {
+        "trades": 531,
+        "win_rate": 37.1,
+        "expectancy_points": 0.056,
+        "expectancy_r": -0.389,
+        "profit_factor": 1.023,
+        "cumulative_points": 29.605,
+        "max_drawdown_points": 116.422,
+        "avg_win_points": 6.604,
+        "avg_loss_points": -3.807,
+        "year": "2022"
+      },
+      {
+        "trades": 506,
+        "win_rate": 35.573,
+        "expectancy_points": -0.057,
+        "expectancy_r": -0.345,
+        "profit_factor": 0.974,
+        "cumulative_points": -28.664,
+        "max_drawdown_points": 185.916,
+        "avg_win_points": 6.016,
+        "avg_loss_points": -3.41,
+        "year": "2023"
+      },
+      {
+        "trades": 560,
+        "win_rate": 30.179,
+        "expectancy_points": -0.826,
+        "expectancy_r": -0.454,
+        "profit_factor": 0.723,
+        "cumulative_points": -462.423,
+        "max_drawdown_points": 488.517,
+        "avg_win_points": 7.14,
+        "avg_loss_points": -4.269,
+        "year": "2024"
+      },
+      {
+        "trades": 537,
+        "win_rate": 34.264,
+        "expectancy_points": -0.108,
+        "expectancy_r": -0.098,
+        "profit_factor": 0.979,
+        "cumulative_points": -57.842,
+        "max_drawdown_points": 326.645,
+        "avg_win_points": 14.861,
+        "avg_loss_points": -7.91,
+        "year": "2025"
+      },
+      {
+        "trades": 262,
+        "win_rate": 29.771,
+        "expectancy_points": 0.882,
+        "expectancy_r": -0.164,
+        "profit_factor": 1.079,
+        "cumulative_points": 231.139,
+        "max_drawdown_points": 499.751,
+        "avg_win_points": 40.266,
+        "avg_loss_points": -15.813,
+        "year": "2026"
+      }
+    ],
+    "by_exit_reason": [
+      {
+        "trades": 2208,
+        "win_rate": 0.0,
+        "expectancy_points": -5.651,
+        "expectancy_r": -1.225,
+        "profit_factor": 0.0,
+        "cumulative_points": -12477.644,
+        "max_drawdown_points": 12477.644,
+        "avg_win_points": 0.0,
+        "avg_loss_points": -5.651,
+        "exit_reason": "SL"
+      },
+      {
+        "trades": 48,
+        "win_rate": 0.0,
+        "expectancy_points": -1.404,
+        "expectancy_r": -7.06,
+        "profit_factor": 0.0,
+        "cumulative_points": -67.41,
+        "max_drawdown_points": 67.41,
+        "avg_win_points": 0.0,
+        "avg_loss_points": -1.404,
+        "exit_reason": "SL_same_bar"
+      },
+      {
+        "trades": 1142,
+        "win_rate": 98.687,
+        "expectancy_points": 10.364,
+        "expectancy_r": 1.743,
+        "profit_factor": 8036.164,
+        "cumulative_points": 11835.796,
+        "max_drawdown_points": 0.314,
+        "avg_win_points": 10.503,
+        "avg_loss_points": -0.105,
+        "exit_reason": "TP"
+      }
+    ]
+  }
+}

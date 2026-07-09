@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XAUUSD Session KTR Strategy Report</title>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d8dee8;
+      --blue: #1f5eff;
+      --green: #0f8f63;
+      --red: #c2410c;
+      --gold: #b7791f;
+      --slate: #344054;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Malgun Gothic", Arial, sans-serif;
+      line-height: 1.62;
+    }
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 22px 56px;
+    }
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+      margin-bottom: 26px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 10px; }
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eef1f5;
+    }
+    .metric:last-child { border-bottom: 0; }
+    .metric b { color: var(--slate); }
+    .metric span:last-child {
+      text-align: right;
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .pill {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 3px 10px;
+      margin: 0 6px 6px 0;
+      font-size: 12px;
+      font-weight: 700;
+      background: #eef4ff;
+      color: #1849a9;
+    }
+    .pill.green { background: #eafaf2; color: var(--green); }
+    .pill.gold { background: #fff7e6; color: var(--gold); }
+    .pill.red { background: #fff2ed; color: var(--red); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid #eef1f5;
+      padding: 10px;
+    }
+    th {
+      background: #f2f5f9;
+      color: var(--slate);
+      font-weight: 700;
+    }
+    code, pre {
+      font-family: Consolas, "Courier New", monospace;
+      background: #f2f4f7;
+      border-radius: 6px;
+    }
+    code { padding: 2px 5px; }
+    pre {
+      margin: 10px 0 0;
+      padding: 14px;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .step {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 98px;
+    }
+    .step b {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--blue);
+    }
+    .note {
+      border-left: 4px solid var(--blue);
+      padding: 11px 14px;
+      background: #f0f5ff;
+      border-radius: 6px;
+      color: #243b70;
+    }
+    .warning {
+      border-left-color: var(--gold);
+      background: #fff9ec;
+      color: #6f4e12;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 4px 0; }
+    @media (max-width: 860px) {
+      .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .flow { grid-template-columns: 1fr; }
+      h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>XAUUSD 세션 KTR 시스템 전략 리포트</h1>
+      <p class="subtitle">작성일: 2026-07-01 · 상태: 1차 백테스트 전 설계 리포트 · 목적: 규칙을 한눈에 보고 바로 테스트로 옮기기</p>
+      <div>
+        <span class="pill gold">XAUUSD</span>
+        <span class="pill">10분봉 진입</span>
+        <span class="pill">1시간 관찰</span>
+        <span class="pill green">양방향</span>
+        <span class="pill red">아시아 KTR 보정</span>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="panel span-8">
+        <h2>전략 요약</h2>
+        <p>이 전략은 골드(XAUUSD)를 대상으로 세션마다 방향을 새로 판단하고, 첫 1시간 관찰 이후 10분봉에서 눌림 회복 진입을 찾는 시스템이다. 목표 빈도는 하루 평균 2~3회이며, 첫 테스트에서는 세션당 최대 1회, 하루 최대 3회로 제한한다.</p>
+        <div class="flow">
+          <div class="step"><b>1. 세션 리셋</b>아시아, 유럽, 뉴욕 기준 시각마다 새 구간 시작</div>
+          <div class="step"><b>2. 1시간 관찰</b>초기 1시간은 방향과 KTR 계산에 사용</div>
+          <div class="step"><b>3. 방향 판정</b>A안과 B안을 같은 조건으로 비교</div>
+          <div class="step"><b>4. 10분 진입</b>SMA20 눌림 후 회복 시 다음 봉 시가 진입</div>
+          <div class="step"><b>5. KTR 청산</b>SL 1.0/1.5 KTR, TP 1.0/1.5/2.0R 비교</div>
+        </div>
+      </div>
+
+      <div class="panel span-4">
+        <h2>고정 조건</h2>
+        <div class="metric"><b>종목</b><span>XAUUSD</span></div>
+        <div class="metric"><b>방향</b><span>Long / Short</span></div>
+        <div class="metric"><b>진입 봉</b><span>10분봉</span></div>
+        <div class="metric"><b>관찰 구간</b><span>세션 첫 1시간</span></div>
+        <div class="metric"><b>진입 제한</b><span>세션 1회, 하루 3회</span></div>
+        <div class="metric"><b>기본 비용</b><span>왕복 0.40 pt</span></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel span-12">
+        <h2>세션 기준</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>세션</th>
+              <th>리셋 기준</th>
+              <th>KST 변환</th>
+              <th>진입 허용</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Asia</td>
+              <td>KST 08:00 고정</td>
+              <td>항상 08:00</td>
+              <td>09:00 이후</td>
+            </tr>
+            <tr>
+              <td>Europe</td>
+              <td>Europe/London 08:00</td>
+              <td>영국 썸머타임 16:00, 비썸머타임 17:00</td>
+              <td>리셋 후 1시간 이후</td>
+            </tr>
+            <tr>
+              <td>New York</td>
+              <td>America/New_York 09:30</td>
+              <td>미국 썸머타임 22:30, 비썸머타임 23:30</td>
+              <td>리셋 후 1시간 이후</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note">런던과 뉴욕은 썸머타임 전환일이 서로 다를 수 있으므로, 단순 여름/겨울 플래그가 아니라 각 현지 시간대를 KST로 변환해서 처리한다.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel span-6">
+        <h2>방향 판정 A안</h2>
+        <h3>첫 1시간봉 + 20SMA</h3>
+        <ul>
+          <li>첫 1시간봉이 양봉이고 종가가 1시간 20SMA 위면 Long.</li>
+          <li>첫 1시간봉이 음봉이고 종가가 1시간 20SMA 아래면 Short.</li>
+          <li>조건이 섞이면 Neutral.</li>
+          <li>1시간 20SMA는 완료된 1시간봉만 사용한다.</li>
+        </ul>
+      </div>
+      <div class="panel span-6">
+        <h2>방향 판정 B안</h2>
+        <h3>첫 1시간 박스 돌파</h3>
+        <ul>
+          <li>첫 1시간의 고가와 저가를 세션 박스로 저장한다.</li>
+          <li>이후 10분봉 종가가 박스 상단을 돌파하면 Long.</li>
+          <li>이후 10분봉 종가가 박스 하단을 이탈하면 Short.</li>
+          <li>첫 번째 유효 돌파 방향만 해당 세션 방향으로 사용한다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel span-8">
+        <h2>아시아 KTR 1차안</h2>
+        <p>아시아 세션은 시작 직후 값이 터무니없이 커질 수 있으므로, 매매를 막지 않고 KTR만 최근 10거래일 평균 일중 진폭 기준으로 제한한다.</p>
+        <pre>raw = max(today_08_00_10m_high, previous_trading_day_close)
+      - min(today_08_00_10m_low, previous_trading_day_close)
+
+avg10 = average(daily_high - daily_low) over previous 10 trading days
+
+effective_asia_KTR = min(raw, 0.25 * avg10)</pre>
+      </div>
+      <div class="panel span-4">
+        <h2>기록할 값</h2>
+        <ul>
+          <li>Asia raw KTR</li>
+          <li>최근 10거래일 평균 진폭</li>
+          <li>effective Asia KTR</li>
+          <li>raw / avg10 비율</li>
+          <li>cap 적용 여부</li>
+        </ul>
+        <p class="note warning">핵심은 아시아 매매를 금지하지 않는 것이다. 비정상적인 시작 변동이 전체 손절/익절 기준을 망가뜨리지 않게 KTR만 보정한다.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel span-6">
+        <h2>진입 규칙</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>방향</th>
+              <th>트리거</th>
+              <th>진입</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Long</td>
+              <td>10분봉 저가가 SMA20 이하 터치, 종가가 SMA20 위 회복</td>
+              <td>다음 10분봉 시가</td>
+            </tr>
+            <tr>
+              <td>Short</td>
+              <td>10분봉 고가가 SMA20 이상 터치, 종가가 SMA20 아래 이탈</td>
+              <td>다음 10분봉 시가</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel span-6">
+        <h2>청산 그리드</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>항목</th>
+              <th>테스트 값</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>손절 거리</td>
+              <td>1.0 KTR, 1.5 KTR</td>
+            </tr>
+            <tr>
+              <td>익절</td>
+              <td>1.0R, 1.5R, 2.0R</td>
+            </tr>
+            <tr>
+              <td>동일 봉 SL/TP 충돌</td>
+              <td>1차 결과는 보수적으로 SL 우선</td>
+            </tr>
+            <tr>
+              <td>세션 리셋 청산</td>
+              <td>일반 보유와 강제 세션 청산 변형을 함께 비교</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel span-12">
+        <h2>백테스트 결과에서 봐야 할 것</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>질문</th>
+              <th>확인 지표</th>
+              <th>판단 포인트</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>A안과 B안 중 어느 방향 모델이 나은가?</td>
+              <td>총 R, MDD, PF, 연도별 안정성</td>
+              <td>단일 수익보다 손실 구간의 깊이를 우선 확인</td>
+            </tr>
+            <tr>
+              <td>하루 2~3회 빈도가 나오는가?</td>
+              <td>평균 trades/day, session별 trades</td>
+              <td>너무 적으면 진입 조건 완화, 너무 많으면 세션 제한 유지</td>
+            </tr>
+            <tr>
+              <td>아시아 KTR 보정이 과한가?</td>
+              <td>raw/avg10, cap 비율, Asia 성과</td>
+              <td>cap 적용일의 손익과 미적용 가정 비교</td>
+            </tr>
+            <tr>
+              <td>청산 방식이 전략을 살리는가?</td>
+              <td>SL 1.0/1.5, TP 1.0/1.5/2.0R 조합</td>
+              <td>승률과 평균 R의 균형 확인</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel span-12">
+        <h2>다음 작업</h2>
+        <ol>
+          <li><code>backTestData/src/scripts/73_xauusd_session_ktr.py</code> 형태의 1차 백테스트 스크립트를 만든다.</li>
+          <li><code>data/xauusd_10m_2010-01-01_2026-06-16.csv</code>를 읽고 세션을 생성한다.</li>
+          <li>A/B 방향 모델, 아시아 KTR 보정, SMA20 눌림 진입, KTR 기반 SL/TP를 모두 같은 엔진에서 비교한다.</li>
+          <li>거래 CSV와 결과 HTML을 생성해 이 리포트 뒤에 실제 수치 섹션을 붙인다.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
