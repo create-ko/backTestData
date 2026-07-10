@@ -12,6 +12,37 @@
 
 This is not a fixed 1:2 RR strategy. It is the strongest high-frequency candidate found so far after fixed 1:2 tests failed.
 
+## Fixed 1:2 candidate
+
+- Script: `src/scripts/105_2m_bb20_wick_bb4_rr2.py`
+- Entry: same BB20 wick breakout -> opposite BB4 pullback signal as script 103
+- Stop: signal-to-entry extreme plus 0.5P buffer
+- Target: exactly 2R
+- Max hold: 20 bars
+- Max concurrent positions: 5
+- Cost: 0.5P round turn
+
+2026-01-01 to 2026-06-17:
+
+- Trades: 2,052
+- Trading days: 142
+- Trades/day: 14.4507
+- Net points: +822.6515P
+- Profit factor: 1.2731
+- Win rate: 58.5770%
+- Max drawdown: 118.0442P
+
+2023-01-01 to 2026-06-17:
+
+- Trades: 10,747
+- Trading days: 1,075
+- Trades/day: 9.9972
+- Net points: -4,773.7969P
+- Profit factor: 0.6570
+- Win rate: 38.1502%
+
+Interpretation: this is the first fixed 1:2 setup that satisfies the requested frequency and profitability in the 2026 Jan-Jun sample, but it fails badly when expanded to 2023-2026. Treat it as a current-regime research candidate, not a production strategy.
+
 ## Verified snapshots
 
 2026-01-01 to 2026-06-17, no regime filter, max concurrent positions 5:
@@ -39,6 +70,7 @@ This is not a fixed 1:2 RR strategy. It is the strongest high-frequency candidat
 ## Known risks
 
 - Fixed 1:2 RR variants tested so far were negative; this candidate uses grid/trailing recovery logic.
+- A newer fixed 1:2 variant works in 2026 Jan-Jun but fails on 2023-2026 expansion.
 - No-regime 2023-2026 result is negative, so regime or volatility/trend gating matters.
 - The default capped model is more practical than independent-signal evaluation, but still needs margin/exposure sizing checks.
 - NinjaTrader/Pine versions should be generated from the capped rule set, not the old independent-signal assumption.
