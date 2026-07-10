@@ -129,10 +129,23 @@ RR2 walk-forward regime check:
 - 2026 sample for the same config: 2,277 trades, 16.0352 trades/day, +1,700.8860P, PF 1.7485.
 - Interpretation: parameter tuning can satisfy the requested 10-20 trades/day and looks strong in 2026, but it does not repair the 2023-2026 failure. The BB20 wick -> BB4 fixed RR2 idea remains current-regime dependent.
 
+## BB20 fade RR2 sweep
+
+- Script: `src/scripts/109_2m_bb20_fade_rr2_sweep.py`
+- Report: `result/bb20_fade_rr2_sweep/bb20_fade_rr2_sweep_report.html`
+- Input period: `2023-01-01` to `2026-06-17`.
+- Concept: fade BB20/2 upper/lower extremes on the next 2m open, stop beyond the signal candle extreme plus buffer, target exactly 2R.
+- Close-signal quick check: all tested configs were negative and too infrequent; the best groups were only around 2-4 trades/day.
+- Wick-signal quick check: frequency can reach the requested band, but performance is deeply negative.
+- Best full-period frequency-fit wick config: `signal=wick`, `cooldown=0`, `stop_buffer=0.2`, `min_risk=0.8`, `max_risk=3`, `max_hold=10`, `cap=5`.
+- Full-period result for that config: 20,710 trades, 19.2651 trades/day, -11,386.1455P, PF 0.5453.
+- 2026 sample for the same config: 4,178 trades, 29.4225 trades/day, -2,196.6960P, PF 0.6448.
+- Interpretation: simple BB20 mean-reversion with fixed 1:2 RR is not viable. The next fixed-RR search should prefer continuation/breakout-pullback ideas rather than fading every band extreme.
+
 ## Next work
 
 1. Add a position-sizing/risk-percent layer for `MAX_CONCURRENT_POSITIONS=5`.
 2. Improve regime logic using walk-forward validation, not full-period threshold selection.
-3. Test a different fixed 1:2 entry concept instead of further tuning the BB20 wick -> BB4 RR2 idea.
+3. Test a different fixed 1:2 continuation or breakout-pullback concept instead of BB20 fade or further BB20 wick -> BB4 tuning.
 4. Convert capped candidate to NinjaScript after confirming execution assumptions.
 5. If fixed RR is still required, continue searching separately; do not treat this grid candidate as 1:2.
