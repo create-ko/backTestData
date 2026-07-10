@@ -142,10 +142,24 @@ RR2 walk-forward regime check:
 - 2026 sample for the same config: 4,178 trades, 29.4225 trades/day, -2,196.6960P, PF 0.6448.
 - Interpretation: simple BB20 mean-reversion with fixed 1:2 RR is not viable. The next fixed-RR search should prefer continuation/breakout-pullback ideas rather than fading every band extreme.
 
+## BB20 continuation RR2 sweep
+
+- Script: `src/scripts/110_2m_bb20_continuation_rr2_sweep.py`
+- Report: `result/bb20_continuation_rr2_sweep/bb20_continuation_rr2_sweep_report.html`
+- Input period: `2023-01-01` to `2026-06-17`.
+- Concept: enter in the direction of a BB20/2 close or wick extreme on the next 2m open, stop beyond the signal candle opposite extreme plus buffer, target exactly 2R.
+- Close-signal quick check best frequency-fit config: `signal=close`, `trend=none`, `cooldown=3`, `stop_buffer=0.2`, `min_risk=0.8`, `max_risk=8`, `max_hold=20`, `cap=5`.
+- Close-signal full-period result: 10,829 trades, 10.0735 trades/day, -4,704.5995P, PF 0.7277.
+- Close-signal 2026 sample for the same config: 1,528 trades, 10.7606 trades/day, -1,015.0960P, PF 0.7717.
+- Wick-signal quick check best frequency-fit config: `signal=wick`, `trend=none`, `cooldown=3`, `stop_buffer=0.2`, `min_risk=0.8`, `max_risk=4`, `max_hold=20`, `cap=5`.
+- Wick-signal full-period result: 12,130 trades, 11.2837 trades/day, -5,887.5605P, PF 0.6433.
+- Wick-signal 2026 sample for the same config: 1,480 trades, 10.4225 trades/day, -976.1485P, PF 0.6712.
+- Interpretation: simple BB20 continuation is also not viable with fixed 1:2 RR. The signal is frequent enough, but the stop location and entry timing do not produce enough 2R follow-through.
+
 ## Next work
 
 1. Add a position-sizing/risk-percent layer for `MAX_CONCURRENT_POSITIONS=5`.
 2. Improve regime logic using walk-forward validation, not full-period threshold selection.
-3. Test a different fixed 1:2 continuation or breakout-pullback concept instead of BB20 fade or further BB20 wick -> BB4 tuning.
+3. Test a more selective fixed 1:2 breakout-pullback concept based on structural highs/lows or session ranges, not raw BB20 extremes.
 4. Convert capped candidate to NinjaScript after confirming execution assumptions.
 5. If fixed RR is still required, continue searching separately; do not treat this grid candidate as 1:2.
