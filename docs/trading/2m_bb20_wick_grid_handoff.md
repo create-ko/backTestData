@@ -118,10 +118,21 @@ RR2 walk-forward regime check:
 - Finding: the no-filter baseline is the only checked slice that reaches the requested 10-20 trades/day over the full 2023-2026 period, but it is deeply negative.
 - Interpretation: simple NinjaScript-friendly filters reduce some damage, but they also cut frequency below the target. This points back to either current-regime-only deployment, a stronger walk-forward regime gate, or a different 1:2 entry concept.
 
+## RR2 parameter sweep
+
+- Script: `src/scripts/108_2m_bb20_wick_rr2_param_sweep.py`
+- Report: `result/bb20_wick_rr2_param_sweep/rr2_param_sweep_report.html`
+- Input period: `2023-01-01` to `2026-06-17`.
+- Swept parameters: pending bars `10/20/30`, stop buffer `0.2/0.5`, min risk `0.8`, max risk `4/8`, max hold `10/20`, max concurrent positions `5`.
+- Best full-period frequency-fit config: `pending=30`, `stop_buffer=0.5`, `max_risk=4`, `max_hold=10`, `cap=5`.
+- Full-period result for that config: 13,269 trades, 12.3433 trades/day, -4,749.8582P, PF 0.6756, max DD 6,530.7409P.
+- 2026 sample for the same config: 2,277 trades, 16.0352 trades/day, +1,700.8860P, PF 1.7485.
+- Interpretation: parameter tuning can satisfy the requested 10-20 trades/day and looks strong in 2026, but it does not repair the 2023-2026 failure. The BB20 wick -> BB4 fixed RR2 idea remains current-regime dependent.
+
 ## Next work
 
 1. Add a position-sizing/risk-percent layer for `MAX_CONCURRENT_POSITIONS=5`.
 2. Improve regime logic using walk-forward validation, not full-period threshold selection.
-3. Sweep RR2 parameter variants on the BB20 wick -> BB4 entry idea before converting it to NinjaScript.
+3. Test a different fixed 1:2 entry concept instead of further tuning the BB20 wick -> BB4 RR2 idea.
 4. Convert capped candidate to NinjaScript after confirming execution assumptions.
 5. If fixed RR is still required, continue searching separately; do not treat this grid candidate as 1:2.
