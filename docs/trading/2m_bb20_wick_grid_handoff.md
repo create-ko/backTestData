@@ -108,10 +108,20 @@ RR2 walk-forward regime check:
 - Selected condition: prior-month `close >= 3772.782000`, selecting 2026-03 through 2026-06.
 - Interpretation: better than the no-filter RR2 baseline, but still too sparse and regime-specific for production. More robust regime logic or a different 1:2 signal is needed.
 
+## RR2 simple slice diagnostics
+
+- Script: `src/scripts/107_2m_bb20_wick_rr2_slice_diagnostics.py`
+- Report: `result/bb20_wick_rr2_slice_diagnostics/rr2_slice_diagnostics_report.html`
+- Input: script 105 trades for `2023-01-01` to `2026-06-17`.
+- Slices checked: direction, session, entry hour, weekday, risk bucket, fill-speed bucket, breakout close-position bucket, and simple two-way combinations.
+- Baseline: 10,751 trades, 1,075 trading days, 10.0009 trades/day, -4,779.9355P, PF 0.6567.
+- Finding: the no-filter baseline is the only checked slice that reaches the requested 10-20 trades/day over the full 2023-2026 period, but it is deeply negative.
+- Interpretation: simple NinjaScript-friendly filters reduce some damage, but they also cut frequency below the target. This points back to either current-regime-only deployment, a stronger walk-forward regime gate, or a different 1:2 entry concept.
+
 ## Next work
 
 1. Add a position-sizing/risk-percent layer for `MAX_CONCURRENT_POSITIONS=5`.
 2. Improve regime logic using walk-forward validation, not full-period threshold selection.
-3. Run a dedicated RR2 walk-forward regime validation before converting it to NinjaScript.
+3. Sweep RR2 parameter variants on the BB20 wick -> BB4 entry idea before converting it to NinjaScript.
 4. Convert capped candidate to NinjaScript after confirming execution assumptions.
 5. If fixed RR is still required, continue searching separately; do not treat this grid candidate as 1:2.
