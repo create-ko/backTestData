@@ -10,6 +10,7 @@ from __future__ import annotations
 import contextlib
 import io
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -32,6 +33,8 @@ MIN_TRAIN_MONTHS = 12
 MIN_SELECTED_TRAIN_MONTHS = 4
 MIN_TRAIN_ACTIVE_TPD = 10.0
 MAX_TRAIN_ACTIVE_TPD = 25.0
+FEATURE_COLUMNS = os.environ.get("FEATURE_COLUMNS", "ret20,ret60,ret240,adr20,adr60,close").split(",")
+QUANTILES = [float(x) for x in os.environ.get("REGIME_QUANTILES", "0.20,0.35,0.50,0.65,0.80").split(",")]
 
 
 def quiet_call(fn, *args, **kwargs):
@@ -78,11 +81,11 @@ def build_prior_month_features() -> pd.DataFrame:
 
 def candidate_conditions(data: pd.DataFrame) -> list[tuple[str, str, object]]:
     conditions: list[tuple[str, str, object]] = []
-    for col in ["ret5", "ret20", "ret60", "ret120", "ret240", "adr5", "adr20", "adr60", "close"]:
+    for col in [x.strip() for x in FEATURE_COLUMNS if x.strip()]:
         vals = data[col].dropna()
         if vals.empty:
             continue
-        for q in [0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90]:
+        for q in QUANTILES:
             cut = float(vals.quantile(q))
             conditions.append((col, "<=", cut))
             conditions.append((col, ">=", cut))
@@ -146,20 +149,19 @@ def choose_condition(train: pd.DataFrame, conditions: list[tuple[str, str, objec
             continue
         if summary["net_points"] <= 0:
             continue
-        if best_summary is None or (
-            summary["net_points"],
-            summary["profit_factor"],
-            summary["positive_month_rate"],
-            summary["months"],
-        ) > (
-            best_summary["net_points"],
-            best_summary["profit_factor"],
-            best_summary["positive_month_rate"],
-            best_summary["months"],
-        ):
+        if best_summary is None or robust_score(summary) > robust_score(best_summary):
             best_condition = condition
             best_summary = summary
     return best_condition, (best_summary or {})
+
+
+def robust_score(summary: dict) -> tuple:
+    return (
+        summary["net_points"],
+        summary["profit_factor"],
+        summary["positive_month_rate"],
+        summary["months"],
+    )
 
 
 def run():
