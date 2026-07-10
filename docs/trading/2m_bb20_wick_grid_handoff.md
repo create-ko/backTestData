@@ -43,6 +43,13 @@ This is not a fixed 1:2 RR strategy. It is the strongest high-frequency candidat
 
 Interpretation: this is the first fixed 1:2 setup that satisfies the requested frequency and profitability in the 2026 Jan-Jun sample, but it fails badly when expanded to 2023-2026. Treat it as a current-regime research candidate, not a production strategy.
 
+Post-analysis note:
+
+- Same-sample monthly filters that rescue this RR2 variant mostly isolate the 2026 high-price/high-volatility regime.
+- Examples include high ADR60 or high close thresholds that select 2026-02 through 2026-06.
+- That explains why the 2026 sample works, but it is not enough evidence for a forward-tradable regime filter.
+- Next validation should use walk-forward regime selection specifically for the RR2 variant.
+
 ## Verified snapshots
 
 2026-01-01 to 2026-06-17, no regime filter, max concurrent positions 5:
@@ -88,5 +95,6 @@ Interpretation: this is the first fixed 1:2 setup that satisfies the requested f
 
 1. Add a position-sizing/risk-percent layer for `MAX_CONCURRENT_POSITIONS=5`.
 2. Improve regime logic using walk-forward validation, not full-period threshold selection.
-3. Convert capped candidate to NinjaScript after confirming execution assumptions.
-4. If fixed RR is still required, continue searching separately; do not treat this grid candidate as 1:2.
+3. Run a dedicated RR2 walk-forward regime validation before converting it to NinjaScript.
+4. Convert capped candidate to NinjaScript after confirming execution assumptions.
+5. If fixed RR is still required, continue searching separately; do not treat this grid candidate as 1:2.
