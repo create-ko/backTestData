@@ -156,10 +156,22 @@ RR2 walk-forward regime check:
 - Wick-signal 2026 sample for the same config: 1,480 trades, 10.4225 trades/day, -976.1485P, PF 0.6712.
 - Interpretation: simple BB20 continuation is also not viable with fixed 1:2 RR. The signal is frequent enough, but the stop location and entry timing do not produce enough 2R follow-through.
 
+## Structural breakout-pullback RR2 sweep
+
+- Script: `src/scripts/111_2m_structure_breakout_pullback_rr2_sweep.py`
+- Report: `result/structure_breakout_pullback_rr2_sweep/structure_breakout_pullback_rr2_sweep_report.html`
+- Input period: `2023-01-01` to `2026-06-17`.
+- Concept: rolling prior high/low breakout, pullback touches the broken level and closes back on the breakout side, entry next 2m open, stop behind retest/level plus buffer, target exactly 2R.
+- Quick sweep: lookbacks `12/24`, retest windows `3/6`, stop modes `retest/level`, stop buffer `0.2`, min risk `0.8`, max risk `4/8`, max hold `20`, cap `5`.
+- Best full-period frequency-fit config: `lookback=12`, `retest_window=6`, `stop_mode=retest`, `stop_buffer=0.2`, `max_risk=4`, `max_hold=20`, `cap=5`.
+- Full-period result for that config: 11,623 trades, 10.8121 trades/day, -5,676.8255P, PF 0.6402.
+- 2026 sample for the same config: 1,945 trades, 13.6972 trades/day, -1,019.3525P, PF 0.7159.
+- Interpretation: structural breakout-pullback reaches the desired frequency, but the basic 1:2 follow-through is still too weak. More selectivity is needed before another full sweep.
+
 ## Next work
 
 1. Add a position-sizing/risk-percent layer for `MAX_CONCURRENT_POSITIONS=5`.
 2. Improve regime logic using walk-forward validation, not full-period threshold selection.
-3. Test a more selective fixed 1:2 breakout-pullback concept based on structural highs/lows or session ranges, not raw BB20 extremes.
+3. Test stronger quality filters for breakout-pullback: breakout candle body/close-position, impulse size, HTF trend, or session/time gating.
 4. Convert capped candidate to NinjaScript after confirming execution assumptions.
 5. If fixed RR is still required, continue searching separately; do not treat this grid candidate as 1:2.
