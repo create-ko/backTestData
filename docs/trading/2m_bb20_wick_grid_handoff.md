@@ -50,6 +50,13 @@ Post-analysis note:
 - That explains why the 2026 sample works, but it is not enough evidence for a forward-tradable regime filter.
 - Next validation should use walk-forward regime selection specifically for the RR2 variant.
 
+RR2 walk-forward regime check:
+
+- Script: `src/scripts/106_2m_bb20_wick_rr2_walkforward_regime.py`
+- Baseline after 12-month warmup: 30 months, 8,783 trades, 13.8972 trades/active day, -3,236.5303P, PF 0.2034.
+- Walk-forward selected months: 3 months, 902 trades, 17.0189 trades/active day, +268.2940P.
+- Interpretation: RR2 has a faint walk-forward regime signal, but the selected sample is still too small to call stable.
+
 ## Verified snapshots
 
 2026-01-01 to 2026-06-17, no regime filter, max concurrent positions 5:
@@ -90,6 +97,14 @@ Post-analysis note:
 - Baseline after 12-month warmup: 30 months, 4,673 trades, 6.1005 trades/day, -3,290.2321P, PF 0.7306.
 - Walk-forward selected months: 1 month, 308 trades, 11.8462 trades/day, +1,678.3619P.
 - Interpretation: the candidate can work in certain regimes, but the current monthly filter selection is too sparse/unstable to call production-ready.
+
+## RR2 walk-forward regime check
+
+- Script: `src/scripts/106_2m_bb20_wick_rr2_walkforward_regime.py`
+- Prerequisite: run script 105 with `TEST_START=2023-01-01`, `TEST_END=2026-06-17`, default RR2 parameters.
+- Baseline after 12-month warmup: 30 months, 8,783 trades, 13.8972 trades/active day, -3,236.5303P, PF 0.2034.
+- Walk-forward selected months: 3 months, 902 trades, 17.0189 trades/active day, +268.2940P.
+- Interpretation: better than the no-filter RR2 baseline, but still too sparse for production. More robust regime logic or a different 1:2 signal is needed.
 
 ## Next work
 
