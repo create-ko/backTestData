@@ -408,7 +408,210 @@ RR2 walk-forward regime check:
   - `signal_hour`, lookback 1 month, min 5 trades, PF >= 1.2, avg >= 0.10, top 20 buckets: 2,473 trades, 2.3005 trades/day, -426.8095P, PF 0.8785. 2026: +51.7675P, PF 1.0749.
 - Interpretation: recent-month bucket selection improves the 2026 sample but does not rescue the full 2023-2026 period, and it collapses frequency from 11/day to about 2-3/day. This confirms that the high-frequency session-liquidity branch is not just missing a simple walk-forward bucket filter.
 
+## Anchored mean-reversion RR2 sweep
+
+- Script: `src/scripts/129_2m_anchored_mean_reversion_rr2_sweep.py`
+- Report: `result/anchored_mean_reversion_rr2_sweep/anchored_mean_reversion_rr2_sweep_report.html`
+- Input period: `2023-01-01` to `2026-06-17`.
+- Concept: create more frequent reversal opportunities than static liquidity levels by using an expanding session or day anchored mean. When price stretches away from the anchor by a multiple of recent median 2m range and closes back toward the anchor, enter next-open reversal with fixed 1:2 RR. This is volume-free "anchored mean", not true VWAP, because the available CFD data does not expose reliable volume.
+- Representative high-frequency check: `session_mean`, wick stretch, body closes toward anchor, no trend bias, close-extreme displacement, min anchor bars 10, distance 1.2x median range, cooldown 3, stop buffer 0.2, max risk 5, hold 20, cap 5.
+  - Full-period result: 20,000 trades, 18.6047 trades/day, -10,876.2595P, PF 0.6184, target rate 26.5900%.
+  - 2026 result: 3,245 trades, 22.8521 trades/day, -2,079.6630P, PF 0.7070.
+- Stronger session-mean quality check: `session_mean`, wick stretch, close back inside band and body toward anchor, `price_follow`, `body35_close_extreme`, min anchor bars 20, distance 1.6x, cooldown 3, stop buffer 0.2, max risk 8, hold 30, cap 5.
+  - Full-period result: 1,766 trades, 1.6428 trades/day, +3.1500P, PF 1.0013, target rate 34.6546%.
+  - 2026 result: 264 trades, 1.8592 trades/day, -12.5190P, PF 0.9818.
+- Stronger day-mean quality check: same as above but `day_mean`.
+  - Full-period result: 2,106 trades, 1.9591 trades/day, -98.1025P, PF 0.9664.
+  - 2026 result: 319 trades, 2.2465 trades/day, +42.3660P, PF 1.0534.
+- Interpretation: anchored mean reversion easily creates enough trades, but the high-frequency fixed 1:2 version is deeply negative. Stronger filters can approach breakeven, but frequency collapses to about 1.6-2.0 trades/day. This branch does not solve the 10/day fixed-RR requirement, though the strict session-mean variant may be useful later as a tiny component only after further validation.
+
 ## Next work
+
+## Validated low-frequency alternative: RR2 reversal basket
+
+- Staged runner: `src/scripts/138_2m_rr2_reversal_basket_staged.py`
+- Components: immediate session sweep reversal with risk >=2, opening-range
+  failed-breakout reversal with risk >=1.5, PDH/PDL double-sweep reversal, and
+  the extreme-structure reversal add-on. Entries are deduplicated and capped
+  at five concurrent positions.
+- Fixed target: exactly 2R. This is a basket of independently tested reversal
+  components, not a single high-frequency trigger.
+- 2026-01-01 to 2026-06-17: 517 trades, 3.6408/day, +160.5160P, PF 1.1244.
+- 2024-01-01 to 2026-06-17: 1,905 trades, 2.4869/day, +489.7230P, PF 1.1397,
+  max DD 128.7860P, positive-month rate 50.0%.
+- 2023-01-01 to 2026-06-17: 2,147 trades, 1.9972/day, +397.8120P, PF 1.1056,
+  max DD 203.9370P, positive-month rate 45.2381%. Yearly net: 2023 -91.9110P,
+  2024 -32.2240P, 2025 +361.4310P, 2026 +160.5160P.
+- Interpretation: this is the first alternative that satisfies the revised
+  1-3 trades/day objective, retains fixed 1:2 RR, and remains positive across
+  the 2023-2026 aggregate. It is not profitable in every year, so it should be
+  validated in NinjaTrader with broker-specific costs and fill rules before
+  live use.
+- Staged reports:
+  - `result/rr2_reversal_basket_staged/2026/`
+  - `result/rr2_reversal_basket_staged/20240101_20260617/`
+  - `result/rr2_reversal_basket_staged/20230101_20260617/`
+
+### Final basket configuration with daily cap
+
+- Runner setting: `MAX_TRADES_PER_DAY=3`. The selected basket is
+  `immediate_risk_ge_2 + or_risk_ge_1p5 + pdh_pdl_best`; the extreme add-on is
+  excluded from the final configuration because it adds little edge after the
+  daily cap.
+- 2026-01-01 to 2026-06-17: 257 trades, 1.8099/day, `+148.9920P`, PF `1.2308`,
+  max DD `98.4535P`.
+- 2024-01-01 to 2026-06-17: 1,142 trades, 1.4909/day, `+431.3560P`, PF
+  `1.2138`, max DD `112.4825P`, positive-month rate `50.0%`.
+- 2023-01-01 to 2026-06-17: 1,331 trades, 1.2381/day, `+370.9260P`, PF
+  `1.1671`, max DD `140.3850P`, positive-month rate `42.8571%`.
+- This is the recommended alternative under the revised 1-3 trades/day goal:
+  fixed 1:2 RR, daily frequency capped at three, staged expansion completed,
+  and positive aggregate results across all tested periods. It still has
+  losing years/months and requires broker-specific NinjaTrader verification.
+- Final staged report folders:
+  - `result/rr2_reversal_basket_staged/2026_cap3/`
+  - `result/rr2_reversal_basket_staged/20240101_20260617_cap3/`
+  - `result/rr2_reversal_basket_staged/20230101_20260617_cap3/`
+
+## Staged search: alternative 2m strategy families
+
+The staged search order is 2026 first, then 2024-2026 and 2021-2026 only for
+configs that are profitable and near the target frequency in the shorter
+sample. This avoids repeatedly simulating the full 2010-2026 file for weak
+ideas.
+
+### Compression-expansion breakout RR2
+
+- Script: `src/scripts/131_2m_compression_expansion_rr2_staged.py`
+- Signal: prior bars have compressed ranges, then a strong candle closes beyond
+  a rolling high/low. Enter next open, stop at the breakout candle extreme,
+  target 2R.
+- 2026 focused sweep: the highest-frequency positive result was below 1 trade
+  per day. The 8.59 trades/day config returned `-453.2970P`, PF `0.8294`.
+- Decision: do not expand to 2024-2026; the 2026 gate failed.
+
+### Session VWAP / EMA pullback RR2
+
+- Script: `src/scripts/132_2m_vwap_ema_pullback_rr2_staged.py`
+- Signal: session VWAP (CFD tick-volume proxy) and EMA trend alignment, then a
+  shallow EMA pullback that closes back with the trend. Enter next open and
+  target 2R.
+- 2026 focused sweep: best observed configuration produced about 3.05
+  trades/day and `-174.4095P`, PF `0.7709`.
+- Decision: do not expand; both frequency and expectancy failed.
+
+### RSI reclaim RR2
+
+- Script: `src/scripts/133_2m_rsi_reclaim_rr2_staged.py`
+- Signal: RSI recovery from an oversold/overbought threshold with optional EMA
+  or session-VWAP direction filter. Stop is the signal candle extreme and
+  target is 2R.
+- 2026 focused sweep: best configuration was RSI5 10/90 with VWAP filter,
+  19 trades, 0.1338 trades/day, `+23.8195P`, PF `1.8698`.
+- Decision: positive but far too infrequent; do not expand as a standalone
+  answer to the user's target.
+
+- Current research conclusion: the alternative families screened so far either
+  lose money when made frequent or become positive only after collapsing to
+  less than 1-3 trades/day. The staged runner is available for future families,
+  but no candidate has earned a 2-3 year expansion yet.
+
+### BB20 wick -> EMA pullback RR2
+
+- Script: `src/scripts/135_2m_bb20_wick_ema_pullback_rr2_staged.py`
+- Signal: retain the BB20 wick event but replace the BB4 limit with a fixed
+  EMA10/20/30 pullback limit, then use the signal-to-fill extreme stop and 2R
+  target.
+- 2026 best observed positive configuration: EMA10, pending 30, `price_follow`,
+  cooldown 3, max risk 5, hold 20; 254 trades, 1.7887 trades/day,
+  `+50.5189P`, PF `1.1559`.
+- Decision: positive but far below the desired frequency, so it does not earn
+  a 2-3 year expansion.
+
+### Micro EMA reclaim RR sweep
+
+- Script: `src/scripts/136_2m_micro_ema_cross_rr_sweep_staged.py`
+- Signal: price crosses back through a fast EMA while the fast/slow EMA trend
+  agrees; stop uses the recent pullback extreme. Target R was swept across
+  `1.0/1.25/1.5/2.0` to test whether the frequency problem was caused only by
+  the 2R target.
+- 2026 focused result: the best-frequency configurations were about 2.8
+  trades/day and remained negative. The 2R example returned about `-165P`, and
+  lowering the target did not turn the target-frequency band positive.
+- Decision: reject this family before 2-3 year expansion.
+
+### Current constraint diagnosis
+
+- Across the alternative families screened in 2026, frequent configurations
+  generally have target rates below the break-even level required by fixed 2R
+  plus CFD transaction cost. Positive configurations become sparse, usually
+  below 1-3 trades/day.
+- The next meaningful research branch must relax at least one constraint: use a
+  lower target R, accept a lower frequency, or combine a larger set of
+  independently positive low-frequency signals. Forcing weak signals to reach
+  10 trades/day has repeatedly produced negative expectancy.
+
+### Session-liquidity target-R staged expansion
+
+- Script: `src/scripts/137_2m_session_liquidity_rr_sweep_staged.py`
+- 2026 gate candidate: OR sweep reversal, `price_follow`, `close_extreme`,
+  cooldown 3, target 2R, max hold 30; 460 trades, 3.2394/day,
+  `+94.6010P`, PF `1.1039`.
+- 2024-01-01 to 2026-06-17 expansion using the same fixed configuration:
+  3,119 trades, 4.0718/day, `-170.3030P`, PF `0.9587`.
+- Decision: the candidate passes the 2026 screen only at low frequency and
+  fails the first 2-year-plus expansion, so it is rejected for production or
+  further 2021-2026 testing.
+
+- R-multiple relaxation check on the same 2024-2026 sample: 1.0/1.25/1.5R
+  were also negative. The best tested lower-R configuration was 1.5R at
+  `-421.4515P`, PF `0.8881`, with the same 4.0718 trades/day. Lowering the
+  target alone does not repair the regime instability.
+
+- Direction split check: long-only was `-204.6030P`, PF `0.9060`, and short-only
+  was a marginal `+34.3000P`, PF `1.0176` over 2024-2026, both below 2.2
+  trades/day. The same short-only configuration fell to `-493.2695P`, PF
+  `0.8464`, over 2021-2026, so the marginal gain was not stable.
+
+## Full available XAUUSD 2m test
+
+- Test range: `2010-01-01` to `2026-06-17` exclusive, using the full available `xauusd_2m_2010-01-01_2026-06-16.csv` dataset.
+- Configuration: `PENDING_BARS=30`, `STOP_BUFFER_POINTS=0.5`, `MIN_RISK_POINTS=0.8`, `MAX_RISK_POINTS=4.0`, `MAX_HOLD_BARS=20`, `MAX_CONCURRENT_POSITIONS=5`, round-turn cost `0.5P`.
+- Result: 42,626 trades, 5,125 trading days, 8.3173 trades/day, -27,239.2586P, PF 0.4235, target rate 21.8974%, max drawdown 29,032.3802P.
+- Yearly net points: 2010 -2,058.9822P, 2011 -1,593.6097P, 2012 -1,894.7245P, 2013 -2,073.4961P, 2014 -1,646.6467P, 2015 -1,349.8730P, 2016 -1,782.0413P, 2017 -995.1432P, 2018 -1,182.2475P, 2019 -1,285.7136P, 2020 -2,132.6307P, 2021 -2,425.9257P, 2022 -2,007.3068P, 2023 -2,038.5405P, 2024 -2,565.1172P, 2025 -1,917.3770P, 2026 +1,710.1171P.
+- Interpretation: the requested 10-trades/day frequency is not stable over the full history, and the fixed 1:2 setup is decisively negative outside the 2026 regime. The current strategy must be treated as a 2026 high-price-regime candidate, not as a full-history production strategy.
+- Full-period files: `result/bb20_wick_bb4_rr2_2m_20100101_20260617/bb20_wick_bb4_rr2_overall.csv`, `bb20_wick_bb4_rr2_yearly.csv`, and `bb20_wick_bb4_rr2_monthly.csv`.
+
+## NinjaTrader port for current-regime RR2 candidate
+
+- Strategy: `src/ninjascript/Bb20WickBb4Rr2Xauusd.cs`
+- Usage: `src/ninjascript/README_bb20_wick_bb4_rr2.md`
+- Primary series is 2-minute XAUUSD/Gold CFD. It calculates BB20/2 from closes and BB4/4 from opens, keeps a pullback limit active for 30 bars, uses a 0.5P extreme buffer, fixed 2R target, 0.8-4.0P risk bounds, 20-bar maximum hold, and exports yearly/monthly CSV reports.
+- The default prior-month gate is `prior completed daily close >= 3772.782`, matching the current 2026 high-price regime research condition. It is a conditional research deployment setting, not a general long-term filter.
+- The port separates signal detection from order activation so a breakout outside KST 09:00-18:00 can remain pending while fills are accepted only inside that window.
+- The local workspace has no NinjaTrader assemblies or C# compiler, so platform compilation and Strategy Analyzer parity remain to be verified inside NinjaTrader. Commission, slippage, bar fill resolution, and same-bar stop/target ordering can change results versus the Python model.
+
+## 2026 current-regime BB20 wick -> BB4 RR2 revalidation
+
+- Fixed configuration: `PENDING_BARS=30`, `STOP_BUFFER_POINTS=0.5`, `MIN_RISK_POINTS=0.8`, `MAX_RISK_POINTS=4.0`, `MAX_HOLD_BARS=20`, `MAX_CONCURRENT_POSITIONS=5`, round-turn cost `0.5P`.
+- Script: `src/scripts/105_2m_bb20_wick_bb4_rr2.py`
+- 2026-01-01 to 2026-06-17: 2,278 trades, 16.0423 trades/day, +1,713.5867P, PF 1.7411, max DD 49.8110P.
+- Monthly net points: January +184.9954P, February +485.5582P, March +392.5776P, April +128.7086P, May +371.4882P, June 1-17 +150.2587P. All six months were positive.
+- Same fixed configuration over 2023-01-01 to 2026-06-17: 13,258 trades, 12.3330 trades/day, -4,811.9223P, PF 0.6877. Yearly net: 2023 -2,041.5515P, 2024 -2,566.7746P, 2025 -1,913.7132P, 2026 +1,710.1171P.
+- Walk-forward check: using only prior-month data to select a regime condition selected 5 months, February through June 2026, with 1,904 trades, 20.0421 trades per active day, +1,525.1217P, PF reported as infinite because the selected sample had no losing trades. The post-warmup no-filter baseline was 10,691 trades, 16.8894 per active day, -2,770.3705P, PF 0.4010.
+- Interpretation: this is the strongest candidate for the originally specified 2026 Jan-Jun sample and the rule is straightforward to port to NinjaScript. It remains regime-dependent and has not been proven across multiple independent regimes. The walk-forward filter must be enabled only from prior-month data; the 2026 result must not be treated as a guarantee for later months.
+
+## Rolling false-breakout reversal RR2
+
+- Script: `src/scripts/130_2m_rolling_false_breakout_reversal_rr2.py`
+- Report: `result/rolling_false_breakout_reversal_rr2/rolling_false_breakout_reversal_rr2_report.html`
+- Concept: use the prior rolling high/low over 3-48 bars. After a close breaks the level, enter the next 2m open only when a later candle closes back inside it. The stop is beyond the full breakout/failure excursion and the target is fixed at 2R.
+- Focused quality run: lookbacks 12/24, fail window 3, breakout body 0.25/0.40, `price_follow`, `body35_close_extreme`, cooldown 3, stop buffer 0.2, max risk 8, hold 30/45.
+  - Best quality result in this run: lookback 24, body 0.25, hold 30, 1,421 trades, 1.3219/day, -277.5890P, PF 0.8711. 2026: 207 trades, 1.4577/day, -19.5895P, PF 0.9654.
+- Focused frequency run: lookbacks 3/6/12, fail window 1/3, no bias, `close_extreme`, cooldown 0, stop buffer 0.2, max risk 5, hold 20.
+  - Lookback 6 / fail window 1: 9,328 trades, 8.6772/day, -4,865.6325P, PF 0.6281. 2026: 1,058 trades, 7.4507/day, -319.2495P, PF 0.8641.
+  - Lookback 3 / fail window 1: 12,728 trades, 11.8400/day, -6,375.9350P, PF 0.6416. 2026: 1,535 trades, 10.8099/day, -421.8220P, PF 0.8747.
+- Interpretation: this family can reach the requested frequency, but its fixed 1:2 expectancy is decisively negative both over the full sample and over 2026. It should not be combined into the positive reversal basket merely to increase trade count.
 
 1. Add a position-sizing/risk-percent layer for `MAX_CONCURRENT_POSITIONS=5`.
 2. Improve regime logic using walk-forward validation, not full-period threshold selection.
@@ -418,3 +621,4 @@ RR2 walk-forward regime check:
 6. Continue searching for additional independent positive components, because the current profitable basket reaches only about 2-3 trades/day.
 7. Convert capped candidate to NinjaScript only after confirming execution assumptions and deciding whether the lower-frequency profitable reversal branch is acceptable.
 8. If fixed RR is still required at 10-20 trades/day, continue searching separately; do not treat this grid candidate as 1:2.
+9. Anchored mean reversion was tested and shows the same trade-off: high-frequency is deeply negative, stricter quality is near breakeven but low-frequency.

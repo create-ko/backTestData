@@ -1,0 +1,71 @@
+//@version=6
+strategy(
+     "XAUUSD Daily King Keltner - Gap Aware",
+     overlay = true,
+     pyramiding = 0,
+     initial_capital = 100000,
+     default_qty_type = strategy.fixed,
+     default_qty_value = 1,
+     commission_type = strategy.commission.cash_per_contract,
+     commission_value = 0.25,
+     slippage = 0,
+     process_orders_on_close = false,
+     calc_on_order_fills = false)
+
+groupModel = "Model"
+maLength = input.int(40, "Typical-price SMA", minval = 2, group = groupModel)
+atrLength = input.int(40, "Simple TR average", minval = 2, group = groupModel)
+bandMultiplier = input.float(1.0, "Channel ATR multiplier", minval = 0.1, step = 0.1, group = groupModel)
+
+groupWindow = "Backtest window"
+startTime = input.time(timestamp("01 Jan 2010 00:00 +0000"), "Start", group = groupWindow)
+endTime = input.time(timestamp("17 Jun 2026 00:00 +0000"), "End (exclusive)", group = groupWindow)
+
+isDaily = timeframe.isdaily
+inWindow = time >= startTime and time < endTime
+enoughData = bar_index >= math.max(maLength, atrLength)
+
+center = ta.sma(hlc3, maLength)
+simpleAtr = ta.sma(ta.tr(true), atrLength)
+upperEntry = center + simpleAtr * bandMultiplier
+lowerEntry = center - simpleAtr * bandMultiplier
+trendUp = center > center[1]
+trendDown = center < center[1]
+
+flat = strategy.position_size == 0
+ready = barstate.isconfirmed and isDaily and inWindow and enoughData and not na(center) and not na(simpleAtr)
+
+if barstate.isconfirmed
+    if flat
+        // Each signal order is valid for the next daily bar only.
+        strategy.cancel("Long")
+        strategy.cancel("Short")
+        strategy.cancel("Long Exit")
+        strategy.cancel("Short Exit")
+        if ready and trendUp
+            strategy.entry("Long", strategy.long, stop = upperEntry)
+        else if ready and trendDown
+            strategy.entry("Short", strategy.short, stop = lowerEntry)
+    else
+        strategy.cancel("Long")
+        strategy.cancel("Short")
+        if strategy.position_size > 0
+            strategy.cancel("Short Exit")
+            strategy.exit("Long Exit", from_entry = "Long", stop = center)
+        else
+            strategy.cancel("Long Exit")
+            strategy.exit("Short Exit", from_entry = "Short", stop = center)
+
+if barstate.isconfirmed and time >= endTime
+    strategy.cancel_all()
+    if strategy.position_size != 0
+        strategy.close_all(comment = "Backtest end")
+
+plot(center, "Typical SMA", color = color.new(color.yellow, 0), linewidth = 2)
+plot(flat and trendUp ? upperEntry : na, "Next long stop", color = color.new(color.lime, 0), style = plot.style_linebr)
+plot(flat and trendDown ? lowerEntry : na, "Next short stop", color = color.new(color.red, 0), style = plot.style_linebr)
+
+bgcolor(not isDaily ? color.new(color.red, 85) : na, title = "Daily timeframe required")
+
+alertcondition(ready and flat and trendUp, "King Keltner long setup", "Daily SMA slope is up; next-bar long stop is active.")
+alertcondition(ready and flat and trendDown, "King Keltner short setup", "Daily SMA slope is down; next-bar short stop is active.")

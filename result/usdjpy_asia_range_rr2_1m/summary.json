@@ -1,0 +1,17 @@
+{
+  "source": "D:\\codex\\backTestData\\data\\usdjpy_1m_2010-01-01_2026-06-30.csv",
+  "round_turn_cost_jpy": 0.01,
+  "trades": 3635,
+  "market_days": 5158,
+  "trades_per_market_day": 0.7047305157037611,
+  "average_gross_r": 0.08751191300996826,
+  "average_net_r": 0.05016677081362889,
+  "total_net_r": 182.35621190754102,
+  "net_r_profit_factor": 1.1213593491994054,
+  "net_r_win_rate": 0.465474552957359,
+  "target_rate": 0.1279229711141678,
+  "stop_rate": 0.3254470426409904,
+  "average_risk_jpy": 0.37891196698762025,
+  "median_risk_jpy": 0.3125,
+  "max_drawdown_r": 34.34323278615449
+}

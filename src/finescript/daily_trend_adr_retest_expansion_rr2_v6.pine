@@ -1,0 +1,238 @@
+//@version=6
+strategy(
+     "XAUUSD Daily Trend ADR Retest RR2",
+     overlay = true,
+     initial_capital = 100000,
+     currency = currency.USD,
+     default_qty_type = strategy.fixed,
+     default_qty_value = 1,
+     pyramiding = 1,
+     commission_type = strategy.commission.cash_per_contract,
+     commission_value = 0.25,
+     process_orders_on_close = false,
+     calc_on_every_tick = false,
+     calc_on_order_fills = true,
+     max_labels_count = 500)
+
+// TradingView verification port of:
+// src/scripts/152_daily_trend_adr_retest_expansion_rr2.py
+// Run on a standard-candle XAUUSD 5-minute chart.
+
+// ---------- Inputs ----------
+groupTest = "Test window"
+featureStartTime = input.time(timestamp("2010-01-01T00:00:00+09:00"), "Feature history start", group = groupTest)
+startTime = input.time(timestamp("2010-01-01T00:00:00+09:00"), "Start", group = groupTest)
+endTime = input.time(timestamp("2026-06-17T00:00:00+09:00"), "End", group = groupTest)
+
+groupSignal = "Signal"
+smaLength = input.int(120, "Completed KST days for SMA", minval = 20, maxval = 240, group = groupSignal)
+signalMode = input.string("Either", "Retest type", options = ["Either", "Continuation", "Failed break"], group = groupSignal)
+retestWindow = input.int(6, "Retest window, 5m bars", minval = 1, maxval = 24, group = groupSignal)
+bodyMin = input.float(0.0, "Breakout body ratio minimum", minval = 0.0, maxval = 1.0, step = 0.05, group = groupSignal)
+
+groupRisk = "Risk"
+adrLength = input.int(20, "Completed KST days for ADR", minval = 5, maxval = 60, group = groupRisk)
+riskFraction = input.float(0.50, "ADR risk fraction", minval = 0.05, maxval = 1.0, step = 0.05, group = groupRisk)
+riskFloor = input.float(1.5, "Minimum risk, price points", minval = 0.1, step = 0.1, group = groupRisk)
+rewardRisk = input.float(2.0, "Target R", minval = 0.5, step = 0.25, group = groupRisk)
+maxHoldBars = input.int(576, "Maximum hold, 5m bars", minval = 12, maxval = 1000, group = groupRisk)
+
+groupSessions = "Sessions"
+useAsia = input.bool(true, "Asia 08:30 KST", group = groupSessions)
+useEurope = input.bool(true, "London 08:00 local", group = groupSessions)
+useNewYork = input.bool(true, "New York 09:30 local", group = groupSessions)
+
+groupView = "Display"
+showRange = input.bool(true, "Opening range", group = groupView)
+showDailyState = input.bool(false, "Daily close and SMA", group = groupView)
+showSignals = input.bool(true, "Signal markers", group = groupView)
+
+if barstate.isfirst and timeframe.in_seconds() != 300
+    runtime.error("Use this strategy on a 5-minute chart.")
+
+// ---------- Completed KST daily features ----------
+f_dayKey() =>
+    year(time, "Asia/Seoul") * 10000 + month(time, "Asia/Seoul") * 100 + dayofmonth(time, "Asia/Seoul")
+
+var float currentDayHigh = na
+var float currentDayLow = na
+var float currentDayClose = na
+var int previousDayKey = na
+var array<float> completedCloses = array.new_float()
+var array<float> completedRanges = array.new_float()
+
+int dayKey = f_dayKey()
+bool newKstDay = not na(previousDayKey) and dayKey != previousDayKey
+bool inFeatureHistory = time >= featureStartTime
+
+if barstate.isconfirmed and inFeatureHistory
+    if na(currentDayHigh)
+        currentDayHigh := high
+        currentDayLow := low
+        currentDayClose := close
+    else if newKstDay
+        array.unshift(completedCloses, currentDayClose)
+        array.unshift(completedRanges, currentDayHigh - currentDayLow)
+        if array.size(completedCloses) > smaLength
+            array.pop(completedCloses)
+        if array.size(completedRanges) > adrLength
+            array.pop(completedRanges)
+        currentDayHigh := high
+        currentDayLow := low
+        currentDayClose := close
+    else
+        currentDayHigh := math.max(currentDayHigh, high)
+        currentDayLow := math.min(currentDayLow, low)
+        currentDayClose := close
+    previousDayKey := dayKey
+
+bool dailyReady = array.size(completedCloses) >= smaLength and array.size(completedRanges) >= adrLength
+float previousDailyClose = dailyReady ? array.get(completedCloses, 0) : na
+float completedDailySma = dailyReady ? array.avg(completedCloses) : na
+float completedAdr = dailyReady ? array.avg(completedRanges) : na
+bool trendLong = dailyReady and previousDailyClose >= completedDailySma
+
+// ---------- Session opening range ----------
+bool asiaReset = hour(time, "Asia/Seoul") == 8 and minute(time, "Asia/Seoul") == 30
+bool europeReset = hour(time, "Europe/London") == 8 and minute(time, "Europe/London") == 0
+bool newYorkReset = hour(time, "America/New_York") == 9 and minute(time, "America/New_York") == 30
+bool sessionReset = asiaReset or europeReset or newYorkReset
+
+var float sessionHigh = na
+var float sessionLow = na
+var int rangeBars = 0
+var bool sessionTraded = false
+var bool breakoutSeen = false
+var int breakoutDirection = 0
+var float breakoutLevel = na
+var int breakoutAge = 0
+var bool currentSessionEnabled = false
+
+bool rangeUpdated = false
+bool continuationSignal = false
+bool failedBreakSignal = false
+bool longSignal = false
+bool shortSignal = false
+
+if barstate.isconfirmed
+    if sessionReset
+        sessionHigh := high
+        sessionLow := low
+        rangeBars := 1
+        sessionTraded := false
+        breakoutSeen := false
+        breakoutDirection := 0
+        breakoutLevel := na
+        breakoutAge := 0
+        currentSessionEnabled := asiaReset ? useAsia : europeReset ? useEurope : useNewYork
+        rangeUpdated := true
+    else if rangeBars > 0 and rangeBars < 3
+        sessionHigh := math.max(sessionHigh, high)
+        sessionLow := math.min(sessionLow, low)
+        rangeBars += 1
+        rangeUpdated := true
+
+    bool rangeReady = rangeBars >= 3 and not na(sessionHigh) and not na(sessionLow)
+    bool inWindow = time >= startTime and time < endTime
+    bool canEvaluate = currentSessionEnabled and rangeReady and not rangeUpdated and not sessionTraded and dailyReady and inWindow
+    float candleRange = high - low
+    float bodyRatio = candleRange > 0 ? math.abs(close - open) / candleRange : 0.0
+
+    if canEvaluate
+        if not breakoutSeen
+            if close > sessionHigh and bodyRatio >= bodyMin
+                breakoutSeen := true
+                breakoutDirection := 1
+                breakoutLevel := sessionHigh
+                breakoutAge := 0
+            else if close < sessionLow and bodyRatio >= bodyMin
+                breakoutSeen := true
+                breakoutDirection := -1
+                breakoutLevel := sessionLow
+                breakoutAge := 0
+        else
+            breakoutAge += 1
+            if breakoutAge > retestWindow
+                breakoutSeen := false
+                breakoutDirection := 0
+                breakoutLevel := na
+                breakoutAge := 0
+            else
+                bool continuation = breakoutDirection == 1 ? low <= breakoutLevel and close >= breakoutLevel : high >= breakoutLevel and close <= breakoutLevel
+                bool failedBreak = breakoutDirection == 1 ? close < sessionHigh : close > sessionLow
+                bool allowedLong = trendLong
+                bool alignedContinuation = continuation and ((breakoutDirection == 1 and allowedLong) or (breakoutDirection == -1 and not allowedLong))
+                bool alignedFailure = failedBreak and ((breakoutDirection == -1 and allowedLong) or (breakoutDirection == 1 and not allowedLong))
+                bool modeAllowsContinuation = signalMode == "Either" or signalMode == "Continuation"
+                bool modeAllowsFailure = signalMode == "Either" or signalMode == "Failed break"
+
+                continuationSignal := alignedContinuation and modeAllowsContinuation
+                failedBreakSignal := alignedFailure and modeAllowsFailure
+                bool validSignal = continuationSignal or failedBreakSignal
+                if validSignal
+                    longSignal := allowedLong
+                    shortSignal := not allowedLong
+                    sessionTraded := true
+                    breakoutSeen := false
+                else if continuation or failedBreak
+                    breakoutSeen := false
+                    breakoutDirection := 0
+                    breakoutLevel := na
+                    breakoutAge := 0
+
+// ---------- Orders ----------
+var float pendingRisk = na
+var float activeStop = na
+var float activeTarget = na
+var int entryBar = na
+
+bool flat = strategy.position_size == 0
+if barstate.isconfirmed and flat and dailyReady and (longSignal or shortSignal)
+    pendingRisk := math.max(riskFloor, completedAdr * riskFraction)
+    if longSignal
+        strategy.entry("Long", strategy.long, comment = continuationSignal ? "continuation" : "failed_break")
+    else
+        strategy.entry("Short", strategy.short, comment = continuationSignal ? "continuation" : "failed_break")
+
+bool newPosition = strategy.position_size != 0 and strategy.position_size[1] == 0
+if newPosition and not na(pendingRisk)
+    entryBar := bar_index
+    activeStop := strategy.position_size > 0 ? strategy.position_avg_price - pendingRisk : strategy.position_avg_price + pendingRisk
+    activeTarget := strategy.position_size > 0 ? strategy.position_avg_price + rewardRisk * pendingRisk : strategy.position_avg_price - rewardRisk * pendingRisk
+
+if strategy.position_size > 0 and not na(activeStop)
+    strategy.exit("Long exit", from_entry = "Long", stop = activeStop, limit = activeTarget)
+if strategy.position_size < 0 and not na(activeStop)
+    strategy.exit("Short exit", from_entry = "Short", stop = activeStop, limit = activeTarget)
+
+bool holdExpired = strategy.position_size != 0 and not na(entryBar) and bar_index - entryBar >= maxHoldBars
+if holdExpired
+    if strategy.position_size > 0
+        strategy.close("Long", comment = "time_exit", immediately = true)
+    else
+        strategy.close("Short", comment = "time_exit", immediately = true)
+
+bool positionClosed = strategy.position_size == 0 and strategy.position_size[1] != 0
+if positionClosed
+    pendingRisk := na
+    activeStop := na
+    activeTarget := na
+    entryBar := na
+
+// ---------- Visuals and alerts ----------
+plot(showRange and rangeBars >= 3 ? sessionHigh : na, "First 15m high", color = color.new(color.red, 15), style = plot.style_linebr)
+plot(showRange and rangeBars >= 3 ? sessionLow : na, "First 15m low", color = color.new(color.green, 15), style = plot.style_linebr)
+plot(showDailyState ? previousDailyClose : na, "Previous KST close", color = color.new(color.white, 25))
+plot(showDailyState ? completedDailySma : na, "Completed daily SMA", color = color.new(color.orange, 0), linewidth = 2)
+plot(strategy.position_size != 0 ? activeStop : na, "Stop", color = color.red, linewidth = 2, style = plot.style_linebr)
+plot(strategy.position_size != 0 ? activeTarget : na, "Target 2R", color = color.aqua, linewidth = 2, style = plot.style_linebr)
+
+plotshape(showSignals and continuationSignal and longSignal, "Long continuation", shape.triangleup, location.belowbar, color.new(color.lime, 0), size = size.tiny, text = "CR")
+plotshape(showSignals and continuationSignal and shortSignal, "Short continuation", shape.triangledown, location.abovebar, color.new(color.red, 0), size = size.tiny, text = "CR")
+plotshape(showSignals and failedBreakSignal and longSignal, "Long failed break", shape.triangleup, location.belowbar, color.new(color.aqua, 0), size = size.tiny, text = "FB")
+plotshape(showSignals and failedBreakSignal and shortSignal, "Short failed break", shape.triangledown, location.abovebar, color.new(color.orange, 0), size = size.tiny, text = "FB")
+
+alertcondition(continuationSignal and longSignal, "Long continuation retest", "XAUUSD long continuation retest")
+alertcondition(continuationSignal and shortSignal, "Short continuation retest", "XAUUSD short continuation retest")
+alertcondition(failedBreakSignal and longSignal, "Long failed break", "XAUUSD long counter-break failure")
+alertcondition(failedBreakSignal and shortSignal, "Short failed break", "XAUUSD short counter-break failure")

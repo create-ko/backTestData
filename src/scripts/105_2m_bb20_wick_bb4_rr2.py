@@ -208,13 +208,16 @@ def round_floats(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def grouped(trades: pd.DataFrame, cols: list[str], trading_days: int) -> pd.DataFrame:
+def grouped(trades: pd.DataFrame, cols: list[str], trading_days: int, period_days: dict[object, int] | None = None) -> pd.DataFrame:
     rows = []
     for key, group in trades.groupby(cols, sort=True):
         if not isinstance(key, tuple):
             key = (key,)
         row = dict(zip(cols, key))
-        row.update(summarize_group(group, trading_days))
+        group_days = trading_days
+        if period_days is not None and len(cols) == 1:
+            group_days = int(period_days.get(key[0], trading_days))
+        row.update(summarize_group(group, group_days))
         rows.append(row)
     return round_floats(pd.DataFrame(rows))
 
@@ -229,9 +232,14 @@ def run():
         raise RuntimeError("No trades generated")
 
     trading_days = int(pd.Series(df.index.date).nunique())
+    date_values = pd.Series(df.index.date)
+    year_labels = pd.Series(df.index.year)
+    month_labels = pd.Series(df.index.strftime("%Y-%m"))
+    year_days = {int(key): int(value) for key, value in date_values.groupby(year_labels).nunique().items()}
+    month_days = {str(key): int(value) for key, value in date_values.groupby(month_labels).nunique().items()}
     overall = round_floats(pd.DataFrame([summarize_group(trades, trading_days)]))
-    yearly = grouped(trades, ["year"], trading_days)
-    monthly = grouped(trades, ["month"], trading_days)
+    yearly = grouped(trades, ["year"], trading_days, year_days)
+    monthly = grouped(trades, ["month"], trading_days, month_days)
     exits = grouped(trades, ["exit_reason"], trading_days)
 
     entries.to_csv(OUTPUT_DIR / "bb20_wick_bb4_rr2_entries.csv", index=False, encoding="utf-8-sig")

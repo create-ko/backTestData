@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gold KTR Lot Sizing"
+  short_description: "Calculate Gold grid lot sizes from KTR risk."
+  default_prompt: "Calculate Gold KTR grid lot sizes for my account and stop structure."

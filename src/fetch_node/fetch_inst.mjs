@@ -10,7 +10,7 @@ const [, , fromISO, toISO, label, instrument='xauusd', clipFrom, clipTo] = proce
 if (!fromISO || !toISO || !label) { console.error('usage: node fetch_inst.mjs <fromISO> <toISO> <label> <instrument> [clipFrom] [clipTo]'); process.exit(1); }
 
 // 정밀도(소수자릿수): MID float 노이즈 제거 + 일관성
-const PREC = { eurusd: 6, gbpusd: 6, usdjpy: 4, xauusd: 3 };
+const PREC = { eurusd: 6, gbpusd: 6, usdjpy: 4, xauusd: 3, usatechidxusd: 3 };
 const prec = PREC[instrument] ?? 5;
 const rnd = (v) => Number(v.toFixed(prec));
 
@@ -53,7 +53,10 @@ async function fetchMonthComplete(from, to, tag) {
     instrument, dates: { from, to }, timeframe: 'm1', volumes: true, format: 'json',
     useCache: true, cacheFolderPath: path.resolve('.cache', label),
     batchSize: 8, pauseBetweenBatchesMs: 300,
-    retryCount: 6, retryOnEmpty: true, failAfterRetryCount: false, pauseBetweenRetriesMs: 1200,
+    // Empty hourly files are normal during weekends and market closures. Retrying
+    // those files multiplies runtime without improving completeness; the monthly
+    // bid/ask match and balance checks below still catch incomplete downloads.
+    retryCount: 6, retryOnEmpty: false, failAfterRetryCount: false, pauseBetweenRetriesMs: 1200,
   };
   let best = null;
   for (let attempt = 1; attempt <= 8; attempt++) {
@@ -100,7 +103,8 @@ function* months(from, to) {
   let cur = new Date(from);
   const end = new Date(to);
   while (cur < end) {
-    const nxt = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth() + 1, 1));
+    const monthEnd = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth() + 1, 1));
+    const nxt = monthEnd < end ? monthEnd : end;
     yield { from: cur, to: nxt };
     cur = nxt;
   }
@@ -113,4 +117,7 @@ for (const { from, to } of months(fromISO, toISO)) {
   console.log(`[${label}] ${tag} mid=${res.mid.length} match=${res.matchRate.toFixed(3)} 누적10m=${streams['10m'].count}`);
 }
 for (const tf of Object.keys(streams)) await new Promise(res => streams[tf].s.end(res));
+fs.writeFileSync(path.join(PARTS, `${label}.done`), 'ok\n', 'ascii');
+console.log(`[${label}] complete (10m=${streams['10m'].count})`);
+process.exit(0);
 console.log(`[${label}] 완료 (10m=${streams['10m'].count})`);
